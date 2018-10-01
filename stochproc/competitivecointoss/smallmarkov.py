@@ -57,7 +57,7 @@ def mult_seq(a_c, a_e, b_c, b_e):
     return reslt
 
 
-def get_prob():
+def run_prob_3heads_b4_3heads():
     a = np.matrix([[.5,.5,0],[.5,0,.5],[0,0,1]])
     a_c, a_e = get_coefs(a)
     b = np.matrix([[.5,.5,0,0],[.5,0,.5,0],[0.5,0.0,0,.5],[0,0,0,1]])
