@@ -9,11 +9,10 @@ class MarkovSequence:
         self.get_coef_matrix()
 
     def __mul__(self, other):
-        return mult_seq(self.ultimate_coefs, self.eigs, \
-            other.ultimate_coefs, other.eigs)
+        return get_winner_prob(self, other)
 
-    #def __rmul__(other, self):
-    #    return self.__mul__(self, other)
+    def __rmul__(other, self):
+        return get_winner_prob(other, self)
 
     def get_coef_matrix(self):
         a = self.trnsn_matrix
