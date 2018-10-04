@@ -71,6 +71,6 @@ def get_loser_state_prob():
             elif seq2 == 'hh':
                 a[set1[seq1]] += 1
                 break
-    print(str(a))
+    print(str(a/1000000))
 
 
