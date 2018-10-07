@@ -1,4 +1,5 @@
 import numpy as np
+from stochproc.competitivecointoss.smallmarkov import *
 
 
 def tst_eigen_coefs():
@@ -13,5 +14,14 @@ def tst_diagonalizable():
 	## Get back A from its eigen decomposition.
 	a1 = np.dot(np.dot(np.linalg.eig(a)[1],np.diag(np.linalg.eig(a)[0])),np.linalg.inv(np.linalg.eig(a)[1]))
 	return a[0,0] == a1[0,0]
+
+
+def tst_powers1():
+	powrs = get_n_powers([.5,.5,1])
+	return powrs[1] == 1
+
+def tst_powers2():
+	get_n_powers([.5,.5,1,.4,.4,.4,1])
+	return powrs[5] == 1
 
 
