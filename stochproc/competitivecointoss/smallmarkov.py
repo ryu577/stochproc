@@ -33,7 +33,7 @@ class MarkovSequence:
             self.coef_matrix = np.dot(np.diag(first_row_e),\
                                        eig_vec_a_inv)
         else:
-            self.coef_matrix = get_generalized_coefficients(self.trnsn_mat, self.eigs)
+            self.coef_matrix = get_generalized_coefficients(self.trnsn_matrix, self.eigs)
         self.ultimate_coefs = np.array(\
                                     self.coef_matrix.T[self.seq_len-1])[0]
         self.penultimate_coefs = np.array(\
@@ -84,7 +84,12 @@ def mult_seq(a_c, a_e, b_c, b_e):
     Multiplies the probabilities of two
     markov chain probability sequences
     to get the overall prob
-    of the event.
+    of the event. 
+    args:
+        a_c: Winning sequence coefficients.
+        a_e: Winning sequence eigen values.
+        b_c: Losing sequence coefficients.
+        b_e: Losing sequence eigen values.
     """
     reslt = 0
     n_powers_a = get_n_powers(a_e)
@@ -93,14 +98,27 @@ def mult_seq(a_c, a_e, b_c, b_e):
         for j in range(len(b_c)):
             term = a_c[i]*b_c[j]
             eig_pdt = a_e[i]*b_e[j]
-            n = n_powers_a[i] + n_powers_b[j]
+            #n = int(n_powers_a[i] + n_powers_b[j])
+            m = int(n_powers_a[i])
+            l = int(n_powers_b[j])
             if abs(term) > 1e-5:
                 #term = term * (eig_pdt) /(1-eig_pdt)
-                lmb_term = sum_inf_n_powklambda_pown(eig_pdt, n)
-                if n == 0:
-                    lmb_term-=1
+                #lmb_term = sum_inf_n_powklambda_pown(eig_pdt, n)
+                lmb_term = asymmetric_sum(eig_pdt, l, m)
                 term = term * lmb_term
             reslt += term
+    return reslt
+
+
+def asymmetric_sum(lmb, l, m):
+    reslt = 0.0
+    if l+m == 0:
+        return lmb/(1-lmb)
+    for r in range(m+1):
+        inf_term = sum_inf_n_powklambda_pown(lmb,r+l)
+        if r+l == 0:
+            inf_term -= 1
+        reslt += ncr(m,r)*pow(-1,r+m)*inf_term            
     return reslt
 
 
@@ -148,7 +166,7 @@ def run_prob_2running_b4_3consecutive():
 
 def run_prob_3running_b4_2running():
     thr_running_mat = get_running_total_heads_mat(4)
-    
+    two_running_mat = get_running_total_heads_mat(3)
     start1 = np.array([1,0,0,0])
     start2 = np.array([1,0,0])
     pn = np.array([np.dot(start2, np.linalg.matrix_power\
@@ -215,9 +233,10 @@ def get_n_powers(eig):
     return enn_x
 
 
-def tst_matrices():
-    mm = get_running_total_heads_mat(3)
-    mm1 = get_running_total_heads_mat(4)
-    m = get_consecutive_heads_mat(3)
-    m1 = get_consecutive_heads_mat(4)
+#def tst_matrices():
+mm = get_running_total_heads_mat(3)
+mm1 = get_running_total_heads_mat(4)
+m = get_consecutive_heads_mat(3)
+m1 = get_consecutive_heads_mat(4)
+
 
