@@ -13,13 +13,11 @@ it can model and show how to use it to extract some of their properties.
 # Coin toss sequences
 
 Let's say you and I start tossing fair coins. What is the probability you'll reach three consecutive heads before
-I reach two consecutive heads?
-
+I reach two consecutive heads? What about in general you reaching (n+1) consecutive heads before I reach n consecutive
+heads?
 
 
 ```python
-# To install the library, pip install stochproc from command line.
-# hosted at - https://github.com/ryu577/stochproc
 from stochproc.competitivecointoss.smallmarkov import *
 
 ns = np.arange(2,15)
@@ -36,5 +34,12 @@ for n in ns:
 
 plt.plot(ns, win_probs)
 ```
+
+<a href="https://medium.com/@rohitpandey576/coin-toss-markov-chains-7995cb303406" 
+target="_blank"><img src="https://github.com/ryu577/ryu577.github.io/blob/master/Downloads/CompetitiveCoinToss/probs_with_n.png" 
+alt="Image formed by above method" width="240" height="240" border="10" /></a>
+
+
+
 
 
