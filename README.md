@@ -27,19 +27,19 @@ Chapter 11 of [1] provides a closed form. However, we want to validate this with
 from stochproc.reliability.machinerepair import *
 
 for i in range(10):
-		probs = []
-		stds = []
-		for t in range(1,100):
-			prob, std = updown(t)
-			probs.append(prob)
-			stds.append(std)
-		plt.plot(np.arange(1,100), probs,alpha=0.4,color='pink')
+	probs = []
+	stds = []
+	for t in range(1,100):
+		prob, std = updown(t)
+		probs.append(prob)
+		stds.append(std)
+	plt.plot(np.arange(1,100), probs,alpha=0.4,color='pink')
 
-	xs = np.arange(1,100)
-	plt.plot(xs, closed_form(xs),color='red')
-	plt.xlabel('Time')
-	plt.ylabel('Reliability of system')
-	plt.show()
+xs = np.arange(1,100)
+plt.plot(xs, closed_form(xs),color='red')
+plt.xlabel('Time')
+plt.ylabel('Reliability of system')
+plt.show()
 ```
 
 This leads to the following plot.
