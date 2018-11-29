@@ -11,13 +11,13 @@ def play():
         if toss1:
             pl1 += 1
             pl1 = min(pl1, 2)
-        else:
-            pl1 = 0
+        #else:
+        #    pl1 = 0
         if toss2:
             pl2 += 1
             pl2 = min(pl2, 3)
-        else:
-            pl2 = 0
+        #else:
+        #    pl2 = 0
         if pl1==2 and pl2==3:
             victor = 0
 

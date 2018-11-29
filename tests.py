@@ -24,4 +24,8 @@ def tst_powers2():
 	get_n_powers([.5,.5,1,.4,.4,.4,1])
 	return powrs[5] == 1
 
+def tst_power_series():
+	return abs(sum_inf_n_powklambda_pown(.25,3) - .25/.75**4*(2+.25**2))<1e-13
+
+
 
