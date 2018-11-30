@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def single_machine(t, lmb=1/3, mu=1/10):
+def single_machine(t, lmb=1/10, mu=1/3):
 	"""
 	Simulates a single machine. The mean time to failure (MTBF)
 	for the machine is a exponential with rate lambda. The mean
@@ -32,10 +32,10 @@ def updown(t):
 			upp = single_machine(t)
 			ups += upp
 		ups_arr.append(upp/1000)
-	return ups/10000, np.std(ups_arr)
+	return ups/1000, np.std(ups_arr)
 
 
-def closed_form(t,lmb=1/3,mu=1/10):
+def closed_form(t,lmb=1/10,mu=1/3):
 	return mu/(mu+lmb)+lmb/(lmb+mu)*np.exp(-(lmb+mu)*t)
 
 
