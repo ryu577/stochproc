@@ -56,11 +56,39 @@ def plot_one_mc_sim():
 	plt.show()
 
 
-def k_of_n_sys(p,k=2,n=3):
+def k_of_n_sys(p, k=2, n=3):
 	res = 0
 	for l in range(k,n+1):
 		res += comb(n,l)*p**l*(1-p)**(n-l)
 	return res
+
+def two_of_three_with_network(p, s):
+	return 3*p**2*(1-p)*s + p**3*(1-(1-s)**3)
+
+
+def k_of_n_w_network(p, s, k=2, n=3):
+	res = 0
+	for l in range(k,n+1):
+		res += comb(n,l)*p**l*(1-p)**(n-l)*is_master_available(s,k,l,0.5)
+	return res
+
+
+def is_master_available(s, k=2, l=3, s1=None):
+	res = 0
+	if s1 is None:
+		s1 = s
+	for sim in range(30000):
+		arr = np.zeros(l)
+		succ = 0
+		for i in range(l):
+			for j in range(i+1,l):
+				if np.random.uniform() < s1:
+					succ += 1
+					arr[i] += 1
+					arr[j] += 1
+		if max(arr) < k-1:
+			res += s**succ*(1-s)**(l*(l-1)/2-succ)/s1**succ/(1-s1)**(l*(l-1)/2-succ)
+	return 1-res/30000
 
 
 def two_of_three_reliability_mc(t=10, mu=0.7, lmb=9.3):
