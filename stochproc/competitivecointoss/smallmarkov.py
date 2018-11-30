@@ -2,6 +2,7 @@ import numpy as np
 import operator as op
 from functools import reduce
 import abc
+import matplotlib.pyplot as plt
 
 
 class MarkovSequence:
@@ -29,7 +30,7 @@ class MarkovSequence:
         if use_eig_mat:
             eig_vec_a_inv = np.linalg.inv(eig_vec_a)
             # Taking the first row since we start in [1,0,0]
-            first_row_e = np.array(eig_vec_a[0])[0] 
+            first_row_e = np.array(eig_vec_a[0])[0]
             self.coef_matrix = np.dot(np.diag(first_row_e),\
                                        eig_vec_a_inv)
         else:
@@ -40,29 +41,29 @@ class MarkovSequence:
                                     self.coef_matrix.T[self.seq_len-2])[0]
 
 
-def get_winner_prob(win_seq, lose_seq):
+def get_winner_prob(win_seq, lose_seq, win_prob=0.5):
     a_c, a_e = np.copy(win_seq.penultimate_coefs), np.copy(win_seq.eigs)
     a_c = a_c/a_e
     #a_c = flip_seq(a_c, a_e)
     b_c, b_e = np.copy(lose_seq.ultimate_coefs), np.copy(lose_seq.eigs)
     b_c = flip_seq(b_c, b_e)
     ans = mult_seq(a_c, a_e, b_c, b_e)
-    return ans/2
+    return ans*win_prob
 
 
-def get_consecutive_heads_mat(numstates=3):
+def get_consecutive_heads_mat(numstates=3, p=0.5):
     trnsn_mat = np.matrix(np.zeros((numstates,numstates)))
     for i in range(trnsn_mat.shape[0]-1):
-        trnsn_mat[i,0] = 0.5
-        trnsn_mat[i,i+1] = 0.5
+        trnsn_mat[i,0] = (1-p)
+        trnsn_mat[i,i+1] = p
     trnsn_mat[numstates-1,numstates-1] = 1.0
     return trnsn_mat
 
 
-def get_running_total_heads_mat(numstates=4):
-    trnsn_mat = np.eye(numstates)*0.5
+def get_running_total_heads_mat(numstates=4, p=0.5):
+    trnsn_mat = np.eye(numstates)*(1-p)
     for i in range(numstates-1):
-        trnsn_mat[i,i+1] = 0.5
+        trnsn_mat[i,i+1] = p
     trnsn_mat[numstates-1,numstates-1]=1.0
     return np.matrix(trnsn_mat)
 
@@ -178,6 +179,115 @@ def run_prob_3running_b4_2running():
     return sum((1-pn)*q_n_minus_1)/2
 
 
+def get_probs(p1=0.5, p2=0.5, n1=3, n2=4, tosses=100):
+    """
+    Gets the probabilities of 3 consecutive heads before 2,
+    2 consecutive before 3 and draw. 
+    args:
+        p1: P(heads) for the player needing 2 heads.
+        p2: P(heads) for the player needing 3 heads.
+    """
+    start1 = np.zeros(n1)
+    start1[0] = 1
+    m_3 = get_consecutive_heads_mat(n1,p1)
+    start2 = np.zeros(n2)
+    start2[0] = 1
+    m_4 = get_consecutive_heads_mat(n2,p2)
+    # p_n must always be one toss ahead of q_n_minus_1. So, when p_n is at toss 1, q_n_minus_1 
+    # should be at 0. When it is at 2, q_n_minus_1 should be at 1 and so on.
+    # that is why p_n starts with 1 and goes to 100 while q_n_minus_1 starts with 0 and goes to 99.
+    p_n = np.array([np.dot(start1, np.linalg.matrix_power(m_3,n))[0,n1-1]\
+                             for n in range(1,tosses+1)])
+    q_n_minus_1 = np.array([np.dot(start2, np.linalg.matrix_power(m_4,n))[0,n2-2]\
+                             for n in range(tosses)])
+    p1wins = sum(q_n_minus_1*(1-p_n))*p2
+    p_n = np.array([np.dot(start2, np.linalg.matrix_power(m_4,n))[0,n2-1] for n in range(1,tosses+1)])
+    q_n_minus_1 = np.array([np.dot(start1, np.linalg.matrix_power(m_3,n))[0,n1-2] for n in range(tosses)])
+    p2wins = sum(q_n_minus_1*(1-p_n))*p1
+    return p1wins, p2wins
+
+
+def plot_probs():
+    m_4 = get_consecutive_heads_mat(4)
+    m_3 = get_consecutive_heads_mat(3)
+    start1 = np.array([1,0,0,0])
+    start2 = np.array([1,0,0])
+    p_n = np.array([np.dot(start1, np.linalg.matrix_power\
+                            (m_4,i))[0,0]\
+                         for i in range(40)])
+    #plt.plot(np.arange(40), p_n, color='red',label='P(state 0)')
+    
+    p_n = np.array([np.dot(start1, np.linalg.matrix_power\
+                            (m_4,i))[0,1]\
+                         for i in range(40)])
+    #plt.plot(np.arange(40), p_n, color='yellow',label='P(state 1)')
+    p_n = np.array([np.dot(start1, np.linalg.matrix_power\
+                            (m_4,i))[0,2]\
+                         for i in range(40)])
+    #plt.plot(np.arange(40), p_n, color='orange',label='P(state 2)')
+    p_n = np.array([np.dot(start1, np.linalg.matrix_power\
+                            (m_4,i))[0,3]\
+                         for i in range(40)])
+    #plt.plot(np.arange(40), p_n, color='green',label='P(state 3)')
+    plt.plot(np.arange(40), p_n, color='green',label='P(Seq-1 reaches 3 consecutive heads)')
+    plt.xlabel('Number of tosses')
+    #plt.ylabel('Probabilities of being in various states')
+
+    q_n = np.array([np.dot(start2, np.linalg.matrix_power\
+                            (m_3,i))[0,2]\
+                         for i in range(40)])
+    plt.plot(np.arange(40), q_n, color='red',label='P(Seq-2 reaches 2 consecutive heads)')
+    plt.ylabel('Probs of both seqs being in their target (absorbing) states')
+    plt.legend()
+    plt.show()
+
+
+def plot_probs2():
+    ps = np.arange(0,1,0.01)
+    p_wins = []
+    p_losses = []
+    p_draws = []
+    for p in ps:
+        win,loss = get_probs(p2=p)
+        p_wins.append(win)
+        p_losses.append(loss)
+        p_draws.append(1-win-loss)
+    plt.plot(ps, p_wins,label='3ConsecHeadsWins')
+    plt.plot(ps, p_losses,color='orange',label='2ConsecHeadsWins')
+    plt.plot(ps, p_draws,color='silver',label='draw')
+    plt.axhline(0.450595,color='grey')
+    plt.axvline(0.768482,color='grey')
+    plt.axvline(0.5,color='grey')
+    plt.xlabel('Probability of heads for sequence needing 3 tosses')
+    plt.ylabel('Probabilities of either sequence winning')
+    plt.legend()
+    plt.show()
+
+
+def plot_nHb4npl1H():
+    ns = np.arange(2,15)
+    win_probs = []
+    lose_probs = []
+    draw_probs = []
+    for n in ns:
+        lose_seq = MarkovSequence(get_consecutive_heads_mat(n))
+        win_seq = MarkovSequence(get_consecutive_heads_mat(n+1))
+        ww = win_seq*lose_seq
+        ll = lose_seq*win_seq
+        win_probs.append(ww)
+        lose_probs.append(ll)
+        draw_probs.append(1-ll-ww)
+    plt.plot(ns, win_probs, label='(n+1) H before n H')
+    plt.plot(ns, lose_probs, label='n H before (n+1) H')
+    plt.plot(ns, draw_probs,label='draw')
+    plt.axhline(0.333,color='grey')
+    plt.axhline(0.666,color='grey')
+    plt.xlabel('Number of consecutive heads required for smaller sequence')
+    plt.ylabel('Probability smaller sequence wins')
+    plt.legend()
+    plt.show()
+
+
 def ncr(n, r):
     r = min(r, n-r)
     numer = reduce(op.mul, range(n, n-r, -1), 1)
@@ -234,9 +344,9 @@ def get_n_powers(eig):
 
 
 #def tst_matrices():
-mm = get_running_total_heads_mat(3)
-mm1 = get_running_total_heads_mat(4)
-m = get_consecutive_heads_mat(3)
-m1 = get_consecutive_heads_mat(4)
+mm = get_running_total_heads_mat(3, .5)
+mm1 = get_running_total_heads_mat(4, .5)
+m = get_consecutive_heads_mat(3, .5)
+m1 = get_consecutive_heads_mat(4, .5)
 
 

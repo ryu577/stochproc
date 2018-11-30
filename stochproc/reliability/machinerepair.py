@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy.special import comb
 
 def single_machine(t, lmb=1/10, mu=1/3):
 	"""
@@ -55,5 +55,38 @@ def plot_one_mc_sim():
 	plt.ylabel('Reliability of system')
 	plt.show()
 
+
+def k_of_n_sys(p,k=2,n=3):
+	res = 0
+	for l in range(k,n+1):
+		res += comb(n,l)*p**l*(1-p)**(n-l)
+	return res
+
+
+def two_of_three_reliability_mc(t=10, mu=0.7, lmb=9.3):
+	sys_work = 0	
+	for i in range(1000):
+		summ = single_machine(t,lmb,mu)+single_machine(t,lmb,mu)+single_machine(t,lmb,mu)
+		if summ >= 2:
+			sys_work += 1
+	return sys_work/1000
+
+
+def two_of_three_reliability(t=10, mu=0.7, lmb=9.3):
+	p = closed_form(t, lmb, mu)
+	return k_of_n_sys(p,2,3)
+
+
+def two_of_three_reliability_mc_importance(t=10, mu=0.7, lmb=9.3):
+	sys_work = 0	
+	p = closed_form(t,lmb,mu)
+	q = closed_form(t,lmb,mu*5)
+	for i in range(1000):
+		summ = single_machine(t,lmb,mu*5)+single_machine(t,lmb,mu*5)+single_machine(t,lmb,mu*5)
+		if summ == 2:
+			sys_work += (p**2*(1-p))/(q**2*(1-q))
+		elif summ == 3:
+			sys_work += p**3/q**3
+	return sys_work/1000
 
 
