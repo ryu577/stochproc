@@ -93,15 +93,6 @@ def is_master_available(s, k=2, l=3, s1=None,
 	return 1-res/nsim
 
 
-def three_of_five_w_seven_replicas(p, q):
-	"""
-	When we have seven replicas, three 
-	of the five rows will have one each
-	and the other two will have two each.
-	"""
-	one_hero_two_other = 3*p**3*(1-p)**2*(3*q**2*(1-q)+2*q*(1-q)**2+q**3)
-	return one_hero_two_other
-
 def three_of_four_connectivity(q):
 	"""
 	See WorkProjects/PFFC/Test1
@@ -138,7 +129,7 @@ def two_of_three_reliability_mc_importance(t=10, mu=0.7, lmb=9.3):
 	return sys_work/1000
 
 
-def gen_graphs(n=4, q=0.5, dbl_nodes=0):
+def cross_dc_network_av(k=4, n=4, q=0.5, dbl_nodes=2):
 	edges = []
 	for i in range(n):
 		for j in range(i+1,n):
@@ -151,7 +142,7 @@ def gen_graphs(n=4, q=0.5, dbl_nodes=0):
 		arr = to_binary(e_idx, len(edges))
 		active_edges = edges[arr>0]
 		#print(str(active_edges))
-		if is_master(active_edges,3,4,wts):
+		if is_master(active_edges,k,n,wts):
 			up_edges = sum(arr)
 			ans += q**up_edges*(1-q)**(len(edges)-up_edges)
 	return ans
@@ -178,4 +169,45 @@ def is_master(conn=[(0,1),(1,2),(1,3)], k=3, l=4, wts=np.ones(3)):
 		arr[s[1]] += wts[s[1]]
 	return max(arr) >= (k-1)
 
+## Particular cases.
+
+def three_of_five_w_seven_replicas(p, q):
+	"""
+	When we have seven replicas, three 
+	of the five rows will have one each
+	and the other two will have two each.
+	A hero is defined as a row with two replicas
+	and a Joe is defined as a row with one replica.
+	args:
+		p: The row reliability.
+		q: The cross-dc network reliability.
+	"""
+	one_hero_two_joes = 6*p**3*(1-p)**2*(3*q**2*(1-q)+2*q*(1-q)**2+q**3)
+	one_hero_three_joes = 2*p**4*(1-p)*cross_dc_network_av(3,4,q,1)
+	two_heroes_no_joe = p**2*(1-p)**3*q
+	two_heroes_one_joe = 3*p**3*(1-p)**2*cross_dc_network_av(4,3,q,2)
+	two_heroes_two_joes = 3*p**4*(1-p)*cross_dc_network_av(4,4,q,2)
+	two_heroes_three_joes = p**5*cross_dc_network_av(4,5,q,2)
+	return one_hero_two_joes+one_hero_three_joes+two_heroes_no_joe\
+			+ two_heroes_one_joe + two_heroes_two_joes + two_heroes_three_joes
+
+
+import matplotlib.pyplot as plt
+
+def plot_two_of_three_reliability(ps,name='plots\\0',plot_pt5=True):
+	plt.plot(ps,k_of_n_sys(ps,2,3))
+	plt.plot(ps,ps)
+	if plot_pt5:
+		plt.axvline(0.5)
+	plt.title('Two out of three reliability')
+	plt.xlabel('Component level reliability')
+	plt.ylabel('System level reliability')
+	plt.savefig(name+'.png')
+	plt.close()
+
+
+def make_video():
+	ps = np.arange(0,1,1e-3)
+	for i in range(33):
+		plot_two_of_three_reliability(ps[30*i:],'plots\\im'+str(i),i*30<500)
 

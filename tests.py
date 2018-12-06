@@ -34,4 +34,12 @@ def tst_k_of_n_netwrk():
 def tst_three_of_four_sim():
 	return abs(three_of_four_connectivity(0.5)-is_master_available(0.5,3,4,sure_conncn={},nsim=1000000))<1e-3
 
-
+def tst_winning_at_nth_toss():
+	start2 = np.array([1,0,0,0])
+	m_4 = np.matrix([[.5,.5,0,0], [.5,0,.5,0],[.5,0,0,.5], [0,0,0,1]])
+	q_n = np.array([np.dot(start2, np.linalg.matrix_power(m_4,n))[0,3]\
+                              for n in range(100)])
+	q_n_minus_1 = np.array([np.dot(start2, np.linalg.matrix_power(m_4,n))[0,2]\
+                              for n in range(100)])
+	return sum(np.diff(q_n)[:20] - q_n_minus_1[:20]/2) == 0
+	
