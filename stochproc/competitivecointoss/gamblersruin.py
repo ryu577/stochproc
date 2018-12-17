@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.special import comb
+
 
 m = np.array([[0,.5,0,.5,0],
               [.5,0,.5,0,0],
@@ -30,7 +32,7 @@ def walk_matrix(bottom, target, p=0.5):
 def simulate_gambler(k1=2, k2=3):
     # 0 for g1, 1 for g2 and 2 for draw.
     results = np.zeros(3)
-    for i in range(1000):
+    for i in range(10000):
         g1 = g2 = 0
         for j in range(4000):
             if np.random.uniform() > 0.5:
@@ -54,5 +56,23 @@ def simulate_gambler(k1=2, k2=3):
                 results[0] += 1
                 break
     return results
+
+
+def win_sequence(k, p=0.5):
+    seq = np.zeros(900)
+    for l in range(int((900-k)/2)):
+        seq[k+2*l] = k/(k+l)*comb(k+2*l-1,l)*p**(k+l)*(1-p)**l
+    return seq
+
+
+def gambler_race(k1=2, k2=3):
+    a1 = win_sequence(3)
+    cum_a1 = 0
+    a2 = win_sequence(2)
+    ans = 0
+    for n in range(len(a1)):
+        cum_a1 += a1[n]
+        ans += (1-cum_a1)*a2[n]
+    return ans
 
 
