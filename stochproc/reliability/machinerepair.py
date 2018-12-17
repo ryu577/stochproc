@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import comb
 
-def single_machine(t, lmb=1/3, mu=1/10):
+def single_machine(t, lmb=1/10, mu=1/3):
 	"""
 	Simulates a single machine. The mean time to failure (MTBF)
 	for the machine is a exponential with rate lambda. The mean
@@ -32,10 +32,10 @@ def updown(t):
 			upp = single_machine(t)
 			ups += upp
 		ups_arr.append(upp/1000)
-	return ups/10000, np.std(ups_arr)
+	return ups/1000, np.std(ups_arr)
 
 
-def closed_form(t,lmb=1/3,mu=1/10):
+def closed_form(t,lmb=1/10,mu=1/3):
 	return mu/(mu+lmb)+lmb/(lmb+mu)*np.exp(-(lmb+mu)*t)
 
 
@@ -56,11 +56,50 @@ def plot_one_mc_sim():
 	plt.show()
 
 
-def k_of_n_sys(p,k=2,n=3):
+def k_of_n_sys(p, k=2, n=3):
 	res = 0
 	for l in range(k,n+1):
 		res += comb(n,l)*p**l*(1-p)**(n-l)
 	return res
+
+def two_of_three_with_network(p, s):
+	return 3*p**2*(1-p)*s + p**3*(1-(1-s)**3)
+
+
+def k_of_n_w_network(p, s, k=2, n=3):
+	res = 0
+	for l in range(k,n+1):
+		res += comb(n,l)*p**l*(1-p)**(n-l)*is_master_available(s,k,l,0.5)
+	return res
+
+
+def is_master_available(s, k=2, l=3, s1=None, 
+		sure_conncn={}, nsim=30000):
+	res = 0
+	if s1 is None:
+		s1 = s
+	for sim in range(nsim):
+		arr = np.zeros(l)
+		succ = 0
+		for i in range(l):
+			for j in range(i+1,l):
+				if np.random.uniform() < s1 or (i,j) in sure_conncn:
+					if (i,j) not in sure_conncn:
+						succ += 1
+					arr[i] += 1
+					arr[j] += 1
+		if max(arr) < k-1:
+			res += s**succ*(1-s)**(l*(l-1)/2-succ)/s1**succ/(1-s1)**(l*(l-1)/2-succ)
+	return 1-res/nsim
+
+
+def three_of_four_connectivity(q):
+	"""
+	See WorkProjects/PFFC/Test1
+	"""
+	return 12/15*comb(6,2)*q**2*(1-q)**4+comb(6,3)*q**3*(1-q)**3\
+				+comb(6,4)*q**4*(1-q)**2+comb(6,5)*q**5*(1-q)\
+				+comb(6,6)*q**6
 
 
 def two_of_three_reliability_mc(t=10, mu=0.7, lmb=9.3):
@@ -89,4 +128,86 @@ def two_of_three_reliability_mc_importance(t=10, mu=0.7, lmb=9.3):
 			sys_work += p**3/q**3
 	return sys_work/1000
 
+
+def cross_dc_network_av(k=4, n=4, q=0.5, dbl_nodes=2):
+	edges = []
+	for i in range(n):
+		for j in range(i+1,n):
+			edges.append((i,j))
+	edges = np.array(edges)
+	ans = 0.0
+	wts = np.ones(n)
+	wts[:dbl_nodes] = 2
+	for e_idx in range(2**len(edges)):
+		arr = to_binary(e_idx, len(edges))
+		active_edges = edges[arr>0]
+		#print(str(active_edges))
+		if is_master(active_edges,k,n,wts):
+			up_edges = sum(arr)
+			ans += q**up_edges*(1-q)**(len(edges)-up_edges)
+	return ans
+
+
+def to_binary(n, dim):
+        """
+        Obtains the binary representation of an integer.
+        """
+        raw = np.zeros(dim)
+        temp = n%(2**dim)
+        indx = 0
+        while temp > 0:
+            raw[indx] = temp % 2
+            temp = int(temp / 2)
+            indx = indx + 1
+        return raw
+
+
+def is_master(conn=[(0,1),(1,2),(1,3)], k=3, l=4, wts=np.ones(3)):
+	arr = np.zeros(l)
+	for s in conn:
+		arr[s[0]] += wts[s[0]]
+		arr[s[1]] += wts[s[1]]
+	return max(arr) >= (k-1)
+
+## Particular cases.
+
+def three_of_five_w_seven_replicas(p, q):
+	"""
+	When we have seven replicas, three 
+	of the five rows will have one each
+	and the other two will have two each.
+	A hero is defined as a row with two replicas
+	and a Joe is defined as a row with one replica.
+	args:
+		p: The row reliability.
+		q: The cross-dc network reliability.
+	"""
+	one_hero_two_joes = 6*p**3*(1-p)**2*(3*q**2*(1-q)+2*q*(1-q)**2+q**3)
+	one_hero_three_joes = 2*p**4*(1-p)*cross_dc_network_av(3,4,q,1)
+	two_heroes_no_joe = p**2*(1-p)**3*q
+	two_heroes_one_joe = 3*p**3*(1-p)**2*cross_dc_network_av(4,3,q,2)
+	two_heroes_two_joes = 3*p**4*(1-p)*cross_dc_network_av(4,4,q,2)
+	two_heroes_three_joes = p**5*cross_dc_network_av(4,5,q,2)
+	return one_hero_two_joes+one_hero_three_joes+two_heroes_no_joe\
+			+ two_heroes_one_joe + two_heroes_two_joes + two_heroes_three_joes
+
+
+import matplotlib.pyplot as plt
+
+def plot_two_of_three_reliability(ps,name='plots\\0',plot_pt5=True):
+	plt.plot(ps,k_of_n_sys(ps,2,3))
+	plt.plot(ps,ps)
+	if plot_pt5:
+		plt.axvline(0.5)
+	plt.title('Two out of three reliability')
+	plt.xlabel('Component level reliability')
+	plt.ylabel('System level reliability')
+	plt.savefig(name+'.png')
+	plt.close()
+
+
+def make_video():
+	ps = np.arange(0,1,1e-3)
+	for i in range(33):
+		plot_two_of_three_reliability(ps[30*i:],'plots\\im'+str(i),i*30<500)
 

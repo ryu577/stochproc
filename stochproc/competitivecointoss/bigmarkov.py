@@ -67,6 +67,7 @@ def construct_big_matrix():
 
 
 def run_bigmarkov():
+    
     totalTrans = []
     for n2 in range(0, 3):
         for n1 in range(0, 4):
