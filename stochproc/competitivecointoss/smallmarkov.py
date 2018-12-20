@@ -14,12 +14,12 @@ class MarkovSequence:
     def __mul__(self, other):
         return get_winner_prob(self, other)
 
-    def __rmul__(other, self):
+    def __rmul__(self, other):
         return get_winner_prob(other, self)
 
     def get_coef_matrix(self):
         a = self.trnsn_matrix
-        [eig_a, eig_vec_a] = np.linalg.eig(a)
+        [eig_a, eig_vec_a] = np.linalg.eig(a)        
         self.eigs = eig_a
         use_eig_mat = True
         for i in range(1,len(eig_a)):
@@ -34,7 +34,8 @@ class MarkovSequence:
             self.coef_matrix = np.dot(np.diag(first_row_e),\
                                        eig_vec_a_inv)
         else:
-            self.coef_matrix = get_generalized_coefficients(self.trnsn_matrix, self.eigs)
+            self.coef_matrix = get_generalized_coefficients(\
+                self.trnsn_matrix, self.eigs)
         self.ultimate_coefs = np.array(\
                                     self.coef_matrix.T[self.seq_len-1])[0]
         self.penultimate_coefs = np.array(\
@@ -346,7 +347,7 @@ def get_n_powers(eig):
 #def tst_matrices():
 mm = get_running_total_heads_mat(3, .5)
 mm1 = get_running_total_heads_mat(4, .5)
-m = get_consecutive_heads_mat(3, .5)
+m__ = get_consecutive_heads_mat(3, .5)
 m1 = get_consecutive_heads_mat(4, .5)
 
 
