@@ -50,7 +50,6 @@ def getTransitions(source):
 
 
 def run_bigmarkov():
-    
     totalTrans = []
     for n2 in range(0, 3):
         for n1 in range(0, 4):
@@ -66,9 +65,13 @@ def run_bigmarkov():
     for i in range(0, 10000):
         if i%100 == 0:
             # print(start)
-            print("step " + str(i) + ": win prob for state (3,0) is " + str(start[3]) +"," + \
+            print("step " + str(i) + ": win prob for state (3,0) is " \
+                + str(start[3]) +"," + \
                 " win prob for state (3,1) is " +str(start[7]) + ","\
-                 + " win prob for state (3,2) is " + str(start[11]))             
+                 + " win prob for state (3,2) is " + str(start[11]))
         start = np.dot(m, start)
 
+
+if __name__ == '__main__':
+    run_bigmarkov()
 
