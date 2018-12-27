@@ -9,7 +9,6 @@ Some of these are taken from the book, Introduction to probability models by She
 The best way to demonstrate the capabilities of this library is to describe some stochastic processes
 it can model and show how to use it to extract some of their properties.
 
-
 # Machine reliability
 
 Let's say we start up a machine. It stays up some random amount of time before succumbing to failure.
