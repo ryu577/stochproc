@@ -1,6 +1,7 @@
 import numpy as np
 from stochproc.competitivecointoss.smallmarkov import *
-from stochproc.reliability.machinereliability import *
+#from stochproc.reliability.machinereliability import *
+from stochproc.reliability.machinerepair import *
 import pytest
 
 def tst_eigen_coefs():
@@ -15,7 +16,6 @@ def tst_diagonalizable():
 	## Get back A from its eigen decomposition.
 	a1 = np.dot(np.dot(np.linalg.eig(a)[1],np.diag(np.linalg.eig(a)[0])),np.linalg.inv(np.linalg.eig(a)[1]))
 	return a[0,0] == a1[0,0]
-
 
 def tst_powers1():
 	powrs = get_n_powers([.5,.5,1])
@@ -42,4 +42,5 @@ def tst_winning_at_nth_toss():
 	q_n_minus_1 = np.array([np.dot(start2, np.linalg.matrix_power(m_4,n))[0,2]\
                               for n in range(100)])
 	return sum(np.diff(q_n)[:20] - q_n_minus_1[:20]/2) == 0
-	
+
+
