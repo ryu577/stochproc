@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import comb
+from scipy.special import comb, gamma
 import scipy as sp
 
 m = np.array([[0,.5,0,.5,0],
@@ -90,3 +90,37 @@ def gambler_race(k1=2, k2=3, size=1000):
     return ans1, residue, ans1+residue/2
 
 
+def gambler_race_v2():
+    a_t = np.array([(comb(2*t+1,t)-comb(2*t+1,t-1))/2**(2*t+2) for t in range(500)])
+    b_t = np.array([(comb(2*t+2,t)-comb(2*t+2,t-1))/2**(2*t+3) for t in range(500)])
+    b_sum = 1-np.concatenate(([0],np.cumsum(b_t)))
+    return sum(a_t*b_sum[:500])
+
+
+def gamblers_race_closed_form():
+    seq1 = 1 - np.array([(3*t+4)*gamma(t+1.5)/gamma(t+3)/np.sqrt(np.pi) for t in range(20)])
+    seq2 = 1 - np.array([(3*t+7)*gamma(t+2.5)/gamma(t+4)/np.sqrt(np.pi) for t in range(20)])
+
+
+def draw_recurrence_relation():
+    k = 3
+    d_k_1 = np.array([16,-5])
+    d_k_2 = np.array([4,-1])
+    for k1 in range(15):
+        d_k = (2*(6*k**2-12*k+5)*d_k_1 - (k-2)*(2*k-1)*d_k_2 - np.array([8,0]))/k/(2*k-3)
+        print(d_k[0]/d_k[1])
+        d_k_2 = d_k_1
+        d_k_1 = d_k    
+        k+=1
+
+
+"""
+Mathematica code:
+a[t_] :=
+  a[t] = (Binomial[2 t + 1, t] - Binomial[2 t + 1, t - 1])/2^(2 + 2 t);
+b[t_] :=
+  b[t] = (Binomial[2 t + 2, t] - Binomial[2 t + 2, t - 1])/2^(3 + 2 t);
+{
+ {Sum[ a[t] (1 - Sum[b[j], {j, 0, t - 1}]), {t, 0, \[Infinity]}]}, {\[Placeholder]}
+}
+"""
