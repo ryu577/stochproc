@@ -1,11 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import comb
+import pandas as pd
+
 
 def single_machine(t, lmb=1/10, mu=1/3):
 	"""
-	Simulates a single machine. The mean time to failure (MTBF)
-	for the machine is a exponential with rate lambda. The mean
+	Simulates a single machine. Tells you if the machine is UP
+	or DOWN at time t. The mean time to failure (MTTF)
+	for the machine is exponential with rate lambda. The mean
 	time to repair once the machine goes down is another exponential
 	with mean mu. 
 	"""
@@ -22,7 +25,6 @@ def single_machine(t, lmb=1/10, mu=1/3):
 		if running_time > t:
 			break
 	return up
-
 
 def updown(t):
 	ups = 0
