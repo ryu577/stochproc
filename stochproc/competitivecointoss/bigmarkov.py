@@ -66,8 +66,7 @@ def construct_big_matrix():
     print("Probability you win:" + str(u[0,3]+u[0,4]))
 
 
-def run_bigmarkov():
-    
+def run_bigmarkov():    
     totalTrans = []
     for n2 in range(0, 3):
         for n1 in range(0, 4):
@@ -77,7 +76,6 @@ def run_bigmarkov():
     for t in totalTrans:
         m[t.desti.id, t.source.id] = t.prob
     print(m)
-
     start = np.zeros([12])
     start[0] = 1
     for i in range(0, 10000):
