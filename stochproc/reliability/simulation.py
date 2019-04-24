@@ -53,6 +53,7 @@ def n_machine_transitions(n=3):
 
 def k_of_n_system(k=2,n=3):
     dat = n_machine_transitions(n)
+    system_downs = dat[dat['down_vms']>=2]
     
     
 
