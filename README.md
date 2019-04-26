@@ -74,6 +74,8 @@ plt.plot(ns, win_probs)
 ```
 
 This leads to the following plot:
+
+
 <a href="https://medium.com/@rohitpandey576/coin-toss-markov-chains-7995cb303406" 
 target="_blank"><img src="https://github.com/ryu577/ryu577.github.io/blob/master/Downloads/CompetitiveCoinToss/probs_with_n.png" 
 alt="Image formed by above method" width="240" height="240" border="10" /></a>
