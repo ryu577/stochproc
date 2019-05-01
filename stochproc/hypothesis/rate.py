@@ -35,10 +35,10 @@ def pois_diff_cdf(d,lmb,t,s,nsim=100000):
     return sum(n1/t-n2/s < d)/nsim
 
 
-def pois_diff_sf(d,lmb,t,s):
+def pois_diff_sf(d,lmb,t,s,terms=1000):
     ans = 0
     mean = int(lmb*t)
-    for i in range(mean-1000,mean+1000):
+    for i in range(mean-terms,mean+terms):
         j = np.floor(t*(d+i/s))
         ans += poisson.pmf(i,lmb*s)*\
                poisson.sf(j,lmb*t)
