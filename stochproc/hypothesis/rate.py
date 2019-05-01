@@ -50,7 +50,7 @@ def collect_data():
     res=np.zeros((20,20))
     for t in range(20):
         for s in range(20):
-            res[t,s] = pois_diff_sf(2.0,lmb,t+1,s+1)
+            res[t,s] = pois_diff_sf(d,lmb,t+1,s+1)
     return res
 
 
@@ -63,7 +63,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 def make_plot():
     ts = np.arange(20)
     ss = np.arange(20)
-    # Make data.    
+    # Make data.
     X = ts
     Y = ss
     X, Y = np.meshgrid(X, Y)
