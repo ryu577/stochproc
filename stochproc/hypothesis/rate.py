@@ -2,9 +2,9 @@ import numpy as np
 from scipy.stats import poisson
 
 
-def rate_hypothesis_test(lmb=12.0, mu=14.5, t=10e3/4/100, s=15e3/4/100):
+def rate_hypothesis_test_1(lmb=12.0, mu=14.5, t=10e3/4/100, s=15e3/4/100):
     """
-    Calculates the simulated p-value for the hypothesis test.
+    Calculates the p-value for hypothesis test-1 based on rate difference.
     args:
         lmb: The rate in interruptions per 100 VM years for first group.
         mu: The rate in interruptions per 100 VM years for second group.
@@ -20,7 +20,9 @@ def rate_hypothesis_test(lmb=12.0, mu=14.5, t=10e3/4/100, s=15e3/4/100):
     mu_est = pois2/s
     lmb_mix = (pois1+pois2)/(s+t)
     d = mu_est-lmb_est
+    ## Uses simulation
     p_val1 = 1-pois_diff_cdf(d[0],lmb_mix[0],t,s)
+    ## Uses the summation
     p_val2 = pois_diff_sf(d[0],lmb_mix[0],t,s)
     return d[0], p_val1, p_val2
 
@@ -44,6 +46,7 @@ def pois_diff_sf(d,lmb,t,s,terms=1000):
                poisson.sf(j,lmb*t)
     return ans
 
+
 def collect_data():
     lmb=20.0
     d=2.0
@@ -54,11 +57,30 @@ def collect_data():
     return res
 
 
+def confusion_matrix(t1=10e3/4/100, t2=15e3/4/100):
+    confusion = np.zeros((2,2))
+    for _ in range(10000):
+        lmb1 = lmb2 = 12.0
+        confusion_term = 0
+        if np.random.uniform() > 0.5:
+            lmb2 += 0.2
+            confusion_term = 1
+        n1 = poisson.rvs(lmb1*t1)
+        n2 = poisson.rvs(lmb2*t2)
+        lmb1_hat = n1/t1
+        lmb2_hat = n2/t2
+        lmb_hat = (n1+n2)/(t1+t2)
+        d_stat = lmb2_hat-lmb1_hat
+        p_accept_alternate = pois_diff_sf(d_stat,lmb_hat,t1,t2)
+        confusion[confusion_term,] += np.array([p_accept_alternate, 1-p_accept_alternate])
+    return confusion
+
+
+## Plotting.
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
 
 def make_plot():
     ts = np.arange(20)
@@ -69,16 +91,13 @@ def make_plot():
     X, Y = np.meshgrid(X, Y)
     res = collect_data()
     Z = res
-
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-
     # Plot the surface.
     surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
                         linewidth=0, antialiased=False)
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
-
     plt.show()
 
 
