@@ -26,7 +26,7 @@ class PoissonTest():
         k_lo = int(np.ceil(delta*n+t2*n/t))
         p_val = 0
         for k in range(k_lo,int(n+1)):
-            p_val += PoissonTest.conditional_pmf(n1,k,t1,t2)
+            p_val += PoissonTest.conditional_pmf(n1+k,k,t1,t2)
         return p_val
 
 
