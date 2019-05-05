@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import poisson
 from scipy.optimize import root, bisect
+from stochproc.hypothesis.poisson_test import *
 
 
 def pois_diff_sf(d,lmb1,lmb2,t=10e3/4/100,s=15e3/4/100,terms=1000):
@@ -68,7 +69,7 @@ def cdf_alternate(z, lmb, effect, t1=10e3/4/100, t2=15e3/4/100):
     return 1-pois_diff_sf(z,lmb,lmb+effect,t1,t2)
 
 
-def rate_hypothesis_test_1(lmb=12.0, mu=14.5, t=10e3/4/100, s=15e3/4/100):
+def rate_hypothesis_test_1(lmb=12.0, mu=13.0, t=10e3/4/100, s=15e3/4/100):
     """
     Calculates the p-value for hypothesis test-1 based on rate difference.
     args:
@@ -79,18 +80,20 @@ def rate_hypothesis_test_1(lmb=12.0, mu=14.5, t=10e3/4/100, s=15e3/4/100):
         s: The time for which the second group runs in 100 VM years.
            Default assuming 15K VMs for 3 months; time in 100 VM years.
     """
-    pois1 = poisson.rvs(lmb*t,size=1)
-    pois2 = poisson.rvs(mu*s,size=1)
+    pois1 = poisson.rvs(lmb*t)
+    pois2 = poisson.rvs(mu*s)
     # Get the estimated rates.
     lmb_est = pois1/t
     mu_est = pois2/s
     lmb_mix = (pois1+pois2)/(s+t)
     d = mu_est-lmb_est
     ## Uses simulation
-    p_val1 = 1-pois_diff_cdf(d[0],lmb_mix[0],t,s)
+    p_val1 = 1-pois_diff_cdf(d,lmb_mix,t,s)
     ## Uses the summation
-    p_val2 = pois_diff_sf(d[0],lmb_mix[0],lmb_mix[0],t,s)
-    return d[0], p_val1, p_val2
+    p_val2 = pois_diff_sf(d,lmb_mix,lmb_mix,t,s)
+    ## p-value using poisson test method.
+    p_val3 = PoissonTest.p_value(pois1,pois2,t,s)
+    return d, p_val1, p_val2, p_val3
 
 
 ###################################
