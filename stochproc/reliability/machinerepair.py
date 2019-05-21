@@ -165,6 +165,8 @@ def to_binary(n, dim):
 
 
 def is_master(conn=[(0,1),(1,2),(1,3)], k=3, l=4, wts=np.ones(3)):
+	if max(wts) >= k:
+		return True
 	arr = np.zeros(l)
 	for s in conn:
 		arr[s[0]] += wts[s[0]]

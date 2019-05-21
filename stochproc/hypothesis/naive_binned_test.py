@@ -9,7 +9,7 @@ from stochproc.hypothesis.rate import *
 def simulate_rateratio_test(lmb1,t1,lmb2,t2):
     n1 = poisson.rvs(lmb1*t1)
     n2 = poisson.rvs(lmb2*t2)
-    p_val = binom_test(n2,n1+n2,t1/(t1+t2),alternative='greater')
+    p_val = binom_test(n2,n1+n2,t2/(t1+t2),alternative='greater')
     return p_val
 
 def simulate_binned_t_test(lmb1,t1,lmb2,t2,bin_size=1.0):
@@ -95,3 +95,12 @@ def plot_alpha_beta_curves():
 #1-est_rejection_rate_binned(lmb1=12.0,lmb2=15.0,thresh=0.038)
 #1-est_rejection_rate(lmb1=12.0,lmb2=15.0,t1=25.0,t2=25.0,thresh=0.0545,n=int(1e5))
 
+
+
+binom_tst=np.zeros((20,20))
+
+for i in range(3,20):
+    for j in range(3,20):
+        binom_tst[i,j]=get_beta(t1=i,t2=j,fn=simulate_rateratio_test)
+
+np.savetxt('binom_tst.csv',binom_tst)
