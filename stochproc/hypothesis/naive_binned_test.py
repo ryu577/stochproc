@@ -1,9 +1,56 @@
 import numpy as np
 from scipy import stats
 from scipy.stats import poisson
+from scipy.stats import binom_test
 from stochproc.hypothesis.rate import *
 
 #np.set_printoptions(linewidth=np.inf)
+
+def simulate_rateratio_test(lmb1,t1,lmb2,t2):
+    n1 = poisson.rvs(lmb1*t1)
+    n2 = poisson.rvs(lmb2*t2)
+    p_val = binom_test(n2,n1+n2,t1/(t1+t2),alternative='greater')
+    return p_val
+
+def simulate_binned_t_test(lmb1,t1,lmb2,t2,bin_size=1.0):
+    num_bins1 = int(t1/bin_size)
+    num_bins2 = int(t2/bin_size)
+    if num_bins1 < 2 or num_bins2<2:
+        print("Not enough bins!")
+        return
+    n1 = poisson.rvs(lmb1*t1/num_bins1,size=num_bins1)
+    n2 = poisson.rvs(lmb2*t2/num_bins2,size=num_bins2)
+    mean1 = np.mean(n1/bin_size); std1=np.std(n1/bin_size)
+    mean2 = np.mean(n2/bin_size); std2=np.std(n2/bin_size)
+    p_val = stats.ttest_ind_from_stats(mean1=mean1, std1=std1, nobs1=20, \
+                        mean2=mean2, std2=std2, nobs2=20, \
+                        equal_var=False).pvalue/2
+    return p_val
+
+def est_rejection_rate(lmb1=12.0, lmb2=12.0,
+                        t1=2.5, t2=2.5, n=100000,
+                        thresh=np.arange(0.001,1.0,0.01),
+                        fn=simulate_rateratio_test):
+    reject_rate=np.zeros(len(thresh))
+    for _ in range(n):
+        #n1 is control, n2 is treatment.
+        p_val = fn(lmb1,t1,lmb2,t2)
+        reject_rate+=(p_val<thresh)
+    return reject_rate/n
+
+
+def get_beta(t1=25,t2=25,fn=simulate_binned_t_test):
+    alphas = np.arange(0.001,1.0,0.01)
+    real_alphas = est_rejection_rate(lmb1=12,lmb2=12,t1=t1,t2=t2,fn=fn)
+    errs = (real_alphas-0.05)**2
+    set_alpha = alphas[np.argmin(errs)]
+    set_alpha_idx = np.argmin(errs)
+    betas = 1-est_rejection_rate(lmb1=12,lmb2=15,t1=t1,t2=t2,fn=fn)
+    beta = betas[set_alpha_idx]
+    return beta
+
+
+############################
 
 def compare_tests(n=1e4, alpha=np.array([.01,.25,.3,.4,.45,.5]),
                  lmb=12.0, mu=12.0):
@@ -27,7 +74,7 @@ def compare_tests(n=1e4, alpha=np.array([.01,.25,.3,.4,.45,.5]),
                             mean2=mean2, std2=std2, nobs2=20, \
                             equal_var=False)
         #if t_score.pvalue/2 < alpha:
-        cnt+=t_score.pvalue/2 < alpha
+        cnt += t_score.pvalue/2 < alpha
     print(cnt/n)
     print(cnt1/n)
 
@@ -44,4 +91,7 @@ def plot_alpha_beta_curves():
     plt.legend()
     plt.show()
 
+
+#1-est_rejection_rate_binned(lmb1=12.0,lmb2=15.0,thresh=0.038)
+#1-est_rejection_rate(lmb1=12.0,lmb2=15.0,t1=25.0,t2=25.0,thresh=0.0545,n=int(1e5))
 
