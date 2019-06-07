@@ -89,6 +89,8 @@ def get_beta(t1=25,t2=25,fn=simulate_binned_t_test,lmb_base=12,alpha=0.05,effect
     # so, we choose the alpha that gives us a false positive rate of 5%.
     real_alphas = est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base,t1=t1,t2=t2,fn=fn)
     errs = (real_alphas-alpha)**2
+    if min(errs) > 0.001:
+        raise Exception("Too far!")
     set_alpha = alphas[np.argmin(errs)]
     set_alpha_idx = np.argmin(errs)
     ## Find all betas at various values of alpha.
