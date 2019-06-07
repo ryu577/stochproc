@@ -74,7 +74,7 @@ def est_rejection_rate(lmb1=12.0, lmb2=12.0,
     return reject_rate/n
 
 
-def get_beta(t1=25,t2=25,fn=simulate_binned_t_test):
+def get_beta(t1=25,t2=25,fn=simulate_binned_t_test,lmb_base=12,alpha=0.05,effect=3):
     """
     Obtains the beta (false negative rate) given the observation
     durations for treatment and control and hypothesis test to simulate.
@@ -87,16 +87,24 @@ def get_beta(t1=25,t2=25,fn=simulate_binned_t_test):
     alphas = np.arange(0.001,1.0,0.01)
     ## For small samples, the actual false positive rate differs from the alphas we set.
     # so, we choose the alpha that gives us a false positive rate of 5%.
-    real_alphas = est_rejection_rate(lmb1=12,lmb2=12,t1=t1,t2=t2,fn=fn)
-    errs = (real_alphas-0.05)**2
+    real_alphas = est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base,t1=t1,t2=t2,fn=fn)
+    errs = (real_alphas-alpha)**2
     set_alpha = alphas[np.argmin(errs)]
     set_alpha_idx = np.argmin(errs)
     ## Find all betas at various values of alpha.
-    betas = 1-est_rejection_rate(lmb1=12,lmb2=15,t1=t1,t2=t2,fn=fn)
+    betas = 1-est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base+effect,t1=t1,t2=t2,fn=fn)
     # Select the beta at the alpha level that gives us 5% false positive rate.
     beta = betas[set_alpha_idx]
     return beta
 
+
+def get_ctrl_sample(t1=25,fn=simulate_rateratio_test,
+                    lmb_base=12,alpha=0.05,beta=0.05,effect=3):
+    t2=1.0; beta_tmp=1.0
+    while beta_tmp>beta:
+        beta_tmp = get_beta(t1=t1,t2=t2,fn=fn,lmb_base=lmb_base,alpha=alpha,effect=effect)
+        t2+=1
+    return t2
 
 
 ############################
