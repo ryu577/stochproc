@@ -148,8 +148,10 @@ def plot_alpha_beta_curves():
 def get_full_betas_grid():
     binom_tst=np.zeros((20,20))
     for i in range(3,20):
-        for j in range(3,20):
-            binom_tst[i,j]=get_beta(t1=i,t2=j,
+        for j in range(i,20):
+            binom_tst[i,j] = get_beta(t1=i,t2=j,
                     fn=simulate_rateratio_test)
-    np.savetxt('binom_tst.csv',binom_tst)
+            print(str(binom_tst[i,j]) + ",")
+        #print()
+    np.savetxt('binom_tst1.csv',binom_tst)
 
