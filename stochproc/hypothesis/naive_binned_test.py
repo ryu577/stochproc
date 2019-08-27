@@ -91,13 +91,13 @@ def get_beta(t1=25,t2=25,fn=simulate_binned_t_test,lmb_base=12,alpha=0.05,effect
     errs = (real_alphas-alpha)**2
     if min(errs) > 0.001:
         raise Exception("Too far!")
-    set_alpha = alphas[np.argmin(errs)]
+    set_alpha = real_alphas[np.argmin(errs)]
     set_alpha_idx = np.argmin(errs)
     ## Find all betas at various values of alpha.
     betas = 1-est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base+effect,t1=t1,t2=t2,fn=fn)
     # Select the beta at the alpha level that gives us 5% false positive rate.
     beta = betas[set_alpha_idx]
-    return beta
+    return beta, set_alpha
 
 
 def get_ctrl_sample(t1=25,fn=simulate_rateratio_test,
