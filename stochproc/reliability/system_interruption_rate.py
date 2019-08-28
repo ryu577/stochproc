@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import comb
 
+
 def single_machine_transitions(t, lmb=1/10, mu=1/10):
 	"""
 	Generates the raw state transition data for 

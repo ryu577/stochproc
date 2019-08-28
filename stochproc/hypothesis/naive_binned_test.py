@@ -7,13 +7,34 @@ from stochproc.hypothesis.rate import *
 #np.set_printoptions(linewidth=np.inf)
 
 def simulate_rateratio_test(lmb1,t1,lmb2,t2):
+    """
+    Simulates data from two Poisson distributions
+    and finds the p-value for a one-sided test.
+    args:
+        lmb1: The failure rate for first population.
+        t1: The time observed for first population.
+        lmb2: The failure rate for second population.
+        t2: The time observed for second population
+    """
     n1 = poisson.rvs(lmb1*t1)
     n2 = poisson.rvs(lmb2*t2)
-    p_val = binom_test(n2,n1+n2,t1/(t1+t2),alternative='greater')
+    p_val = binom_test(n2,n1+n2,t2/(t1+t2),alternative='greater')
     return p_val
 
 
 def simulate_binned_t_test(lmb1,t1,lmb2,t2,bin_size=1.0):
+    """
+    Simulates data from two Poisson distributions,
+    bins them as per the bin-size and finds the p-value
+    by passing the binned AIR estimate vectors to a two-
+    sided t-test.
+    args:
+        lmb1: The failure rate for first population.
+        t1: The time observed for first population.
+        lmb2: The failure rate for second population.
+        t2: The time observed for second population
+        bin_size: The bins into which data is partitioned.
+    """
     num_bins1 = int(t1/bin_size)
     num_bins2 = int(t2/bin_size)
     if num_bins1 < 2 or num_bins2<2:
@@ -33,6 +54,20 @@ def est_rejection_rate(lmb1=12.0, lmb2=12.0,
                         t1=2.5, t2=2.5, n=100000,
                         thresh=np.arange(0.001,1.0,0.01),
                         fn=simulate_rateratio_test):
+    """
+    Given various values of alpha, gets the percentage of time
+    the second sample is deemed to have a greater AIR than the
+    first sample.
+    args:
+        lmb1: The failure rate of the first population.
+        lmb2: The failure rate of the second population.
+        t1: The time data is collected for first population.
+        t2: The time data is collected for the second population.
+        n: The number of simulations.
+        thresh: The alpha levels.
+        fn: The test to generate simulated p_value.
+            for example: simulate_binned_t_test, simulate_rateratio_test.
+    """
     reject_rate=np.zeros(len(thresh))
     for _ in range(n):
         #n1 is control, n2 is treatment.
@@ -41,15 +76,39 @@ def est_rejection_rate(lmb1=12.0, lmb2=12.0,
     return reject_rate/n
 
 
-def get_beta(t1=25,t2=25,fn=simulate_binned_t_test):
+def get_beta(t1=25,t2=25,fn=simulate_binned_t_test,lmb_base=12,alpha=0.05,effect=3):
+    """
+    Obtains the beta (false negative rate) given the observation
+    durations for treatment and control and hypothesis test to simulate.
+    args:
+        t1: VM-duration observed in treatment.
+        t2: VM-duration observed in control.
+        fn: The test to generate simulated p_value.
+            for example: simulate_binned_t_test, simulate_rateratio_test.
+    """
     alphas = np.arange(0.001,1.0,0.01)
-    real_alphas = est_rejection_rate(lmb1=12,lmb2=12,t1=t1,t2=t2,fn=fn)
-    errs = (real_alphas-0.05)**2
-    set_alpha = alphas[np.argmin(errs)]
+    ## For small samples, the actual false positive rate differs from the alphas we set.
+    # so, we choose the alpha that gives us a false positive rate of 5%.
+    real_alphas = est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base,t1=t1,t2=t2,fn=fn)
+    errs = (real_alphas-alpha)**2
+    if min(errs) > 0.001:
+        raise Exception("Too far!")
+    set_alpha = real_alphas[np.argmin(errs)]
     set_alpha_idx = np.argmin(errs)
-    betas = 1-est_rejection_rate(lmb1=12,lmb2=15,t1=t1,t2=t2,fn=fn)
+    ## Find all betas at various values of alpha.
+    betas = 1-est_rejection_rate(lmb1=lmb_base,lmb2=lmb_base+effect,t1=t1,t2=t2,fn=fn)
+    # Select the beta at the alpha level that gives us 5% false positive rate.
     beta = betas[set_alpha_idx]
-    return beta
+    return beta, set_alpha
+
+
+def get_ctrl_sample(t1=25,fn=simulate_rateratio_test,
+                    lmb_base=12,alpha=0.05,beta=0.05,effect=3):
+    t2=1.0; beta_tmp=1.0
+    while beta_tmp>beta:
+        beta_tmp = get_beta(t1=t1,t2=t2,fn=fn,lmb_base=lmb_base,alpha=alpha,effect=effect)
+        t2+=1
+    return t2
 
 
 ############################
@@ -96,4 +155,15 @@ def plot_alpha_beta_curves():
 
 #1-est_rejection_rate_binned(lmb1=12.0,lmb2=15.0,thresh=0.038)
 #1-est_rejection_rate(lmb1=12.0,lmb2=15.0,t1=25.0,t2=25.0,thresh=0.0545,n=int(1e5))
+
+
+def get_full_betas_grid():
+    binom_tst=np.zeros((20,20))
+    for i in range(3,20):
+        for j in range(i,20):
+            binom_tst[i,j] = get_beta(t1=i,t2=j,
+                    fn=simulate_rateratio_test)
+            print(str(binom_tst[i,j]) + ",")
+        #print()
+    np.savetxt('binom_tst1.csv',binom_tst)
 

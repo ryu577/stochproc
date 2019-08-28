@@ -17,6 +17,3 @@ for x in np.random.normal(2,1,size=10000):
 print("With importance sampling:" + str(summ/10000))
 
 
-
-
-
