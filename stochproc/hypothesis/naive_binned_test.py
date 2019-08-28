@@ -12,6 +12,7 @@ def simulate_rateratio_test(lmb1,t1,lmb2,t2):
     p_val = binom_test(n2,n1+n2,t1/(t1+t2),alternative='greater')
     return p_val
 
+
 def simulate_binned_t_test(lmb1,t1,lmb2,t2,bin_size=1.0):
     num_bins1 = int(t1/bin_size)
     num_bins2 = int(t2/bin_size)
@@ -26,6 +27,7 @@ def simulate_binned_t_test(lmb1,t1,lmb2,t2,bin_size=1.0):
                         mean2=mean2, std2=std2, nobs2=20, \
                         equal_var=False).pvalue/2
     return p_val
+
 
 def est_rejection_rate(lmb1=12.0, lmb2=12.0,
                         t1=2.5, t2=2.5, n=100000,
