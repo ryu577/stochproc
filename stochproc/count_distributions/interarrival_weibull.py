@@ -3,9 +3,10 @@ from distributions.weibull import Weibull
 import matplotlib.pyplot as plt
 from scipy.special import gamma
 
+
 class InterarrivalWeibull():
     @staticmethod
-    def rvs(k=0.4,lmb=1.0,durtn=20.0,size=1000):
+    def rvs_s(k=0.4,lmb=1.0,durtn=20.0,size=1000):
         cnts = []
         for _ in range(size):
             w_rvs = Weibull.samples_(k,lmb,size=100)
@@ -23,13 +24,19 @@ class InterarrivalWeibull():
         """
         return np.array([sum(np.cumsum(Weibull.samples_(k,lmb,size=100))<durtn) \
             for _ in range(1000)])
+    
+    def __init__(self,k,lmb,durtn):
+        self.k=k; self.lmb=lmb; self.durtn=durtn
+    
+    def rvs(self):
+        return InterarrivalWeibull.rvs_s(self.k,self.lmb,self.durtn)
 
 
 # Q - how does the mean change as we change the parameters of the Weibull?
 def plot_mean_with_k():
     actual_means = []; expctd_means = []
     for k in np.arange(0.1, 4.0, 0.1):
-        actual_mean = np.mean(InterarrivalWeibull.rvs(k,durtn=20.0))
+        actual_mean = np.mean(InterarrivalWeibull.rvs_s(k,durtn=20.0))
         w_mean = gamma(1+1/k)
         expctd_mean = 20.0/w_mean
         actual_means.append(actual_mean)
