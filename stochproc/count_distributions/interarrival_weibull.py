@@ -17,7 +17,15 @@ class InterarrivalWeibull():
         return np.array(cnts)
 
     @staticmethod
-    def rvs2(k=0.4,lmb=1.0,durtn=20.0,size=1000):
+    def rvs1_s(k=0.4,lmb=1.0,durtn=20.0):
+        w_rvs = Weibull.samples_(k,lmb,size=1)[0]; cnt=0
+        while w_rvs < durtn:
+            w_rvs += Weibull.samples_(k,lmb,size=1)[0]
+            cnt +=1
+        return cnt
+
+    @staticmethod
+    def rvs2_s(k=0.4,lmb=1.0,durtn=20.0,size=1000):
         """
         Same as rvs (which is more explicit and maintainable), 
         just including this one here to test for speed.
@@ -26,10 +34,19 @@ class InterarrivalWeibull():
             for _ in range(1000)])
     
     def __init__(self,k,lmb,durtn):
+        """
+        k<1 means decreasing haz rate, positively correlated events and overdispersed (var>mean)
+        k>1 means increasing haz rate, negatively correlated events and underdispersed (var<mean)
+        """
         self.k=k; self.lmb=lmb; self.durtn=durtn
+        self.weib_mean = self.lmb*gamma(1+1/self.k)
+        self.naive_calc_mean = self.durtn/self.weib_mean
     
-    def rvs(self):
-        return InterarrivalWeibull.rvs_s(self.k,self.lmb,self.durtn)
+    def rvs(self,size=10):
+        return InterarrivalWeibull.rvs_s(self.k,self.lmb,self.durtn,size=size)
+    
+    def rvs1(self):
+        return InterarrivalWeibull.rvs1_s(self.k,self.lmb,self.durtn)
 
 
 # Q - how does the mean change as we change the parameters of the Weibull?
