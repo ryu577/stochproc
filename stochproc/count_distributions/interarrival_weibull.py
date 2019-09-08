@@ -58,9 +58,11 @@ def plot_mean_with_k():
         expctd_mean = 20.0/w_mean
         actual_means.append(actual_mean)
         expctd_means.append(expctd_mean)
-
     plt.plot(np.arange(0.1,4.0,0.1),actual_means,label='actual')
     plt.plot(np.arange(0.1,4.0,0.1),expctd_means,label='expected')
+    plt.xlabel('Shape parameter of Weibull')
+    plt.ylabel('Number of events in 20 units of time')
+    plt.axvline(1.0)
     plt.legend()
     plt.show()
 

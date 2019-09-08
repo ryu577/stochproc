@@ -48,14 +48,18 @@ def dist_rvs_interarrivalw(lmb_target=20,t=20):
     iw = InterarrivalWeibull(k,w_lmb,t)
     return iw.rvs1()
 
-def run_simulns(fn, n_sim=50000, scale=1.0):
-    t1=datetime.now()
-    alphas1,betas1,alpha_hats1 = alpha_beta_curve(fn, n_sim=n_sim, 
+
+def run_simulns(fn, n_sim=50000, lmb=20.0, t1=10.0, t2=3.0, scale=1.0):
+    time1=datetime.now()
+    alphas1,betas1,alpha_hats1 = alpha_beta_curve(fn, 
+                                    n_sim=n_sim, 
+                                    lmb=lmb,
+                                    t1=t1, t2=t2, 
                                     scale=scale)
-    t2=datetime.now()
-    time_del = (t2-t1).seconds
+    time2=datetime.now()
+    time_del = (time2-time1).seconds
     print("Time taken in seconds: " + str(time_del))
-    return alphas1,betas1,alpha_hats1
+    return alphas1, betas1, alpha_hats1
 
 
 alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_poisson)
@@ -110,4 +114,29 @@ def plot_alpha_beta():
         facecolor=fig.get_facecolor(), transparent=True)
     plt.close()
 
+
+
+## Does the mapping between alpha-hat and alpha change 
+# if we have different observation windows in each group?
+
+alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=3.0)
+alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=10.0)
+alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=10.0)
+alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=3.0)
+alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_compound, n_sim=5000, lmb=5.0, t1=10.0,t2=10.0)
+
+
+plt.plot(alpha_hats1,alphas1,label="t1=10; t2=3; lmb=20")
+plt.plot(alpha_hats2,alphas2,label="t1=3; t2=10; lmb=20")
+plt.plot(alpha_hats3,alphas3,label="t1=10; t2=10; lmb=20")
+plt.plot(alpha_hats4,alphas4,label="t1=3; t2=3; lmb=20")
+plt.plot(alpha_hats5,alphas5,label="t1=10; t2=10; lmb=5")
+
+
+plt.xlabel('Alpha you set')
+plt.ylabel('Alpha you get')
+plt.legend(facecolor="black", edgecolor="black")
+fig.savefig("C:\\Users\\rohit\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_mapping_no_change.png", \
+                facecolor=fig.get_facecolor(), transparent=True)
+plt.close()
 
