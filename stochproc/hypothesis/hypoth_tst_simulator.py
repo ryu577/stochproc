@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import binom_test, poisson
+from scipy.stats import binom_test, poisson, binom
 from scipy.special import gamma
 from stochproc.count_distributions.compound_poisson import CompoundPoisson
 from stochproc.count_distributions.interarrival_weibull import InterarrivalWeibull
@@ -61,23 +61,23 @@ def run_simulns(fn, n_sim=50000, lmb=20.0, t1=10.0, t2=3.0, scale=1.0):
     print("Time taken in seconds: " + str(time_del))
     return alphas1, betas1, alpha_hats1
 
+import matplotlib as mpl
+
+# mpl.rcParams.update({'text.color' : "white",
+#                         'axes.labelcolor' : "white",
+#                         'xtick.color' : "white",
+#                         'ytick.color' : "white",
+#                         "axes.edgecolor" : "white"})
+
+# fig, ax = plt.subplots(facecolor='black')
+# ax.set_axis_bgcolor("black")
+
 
 alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_poisson)
 alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=5000)
 alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000)
 alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=25.0)
 alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=1/10.0)
-
-import matplotlib as mpl
-
-mpl.rcParams.update({'text.color' : "white",
-                        'axes.labelcolor' : "white",
-                        'xtick.color' : "white",
-                        'ytick.color' : "white",
-                        "axes.edgecolor" : "white"})
-
-fig, ax = plt.subplots(facecolor='black')
-ax.set_axis_bgcolor("black")
 
 
 def plot_all_combinations():
@@ -115,28 +115,60 @@ def plot_alpha_beta():
     plt.close()
 
 
-
 ## Does the mapping between alpha-hat and alpha change 
-# if we have different observation windows in each group?
+## if we have different observation windows in each group?
+def alpha_plots():
+    alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=3.0)
+    alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=10.0)
+    alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=10.0)
+    alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=3.0)
+    alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_compound, n_sim=5000, lmb=5.0, t1=10.0,t2=10.0)
 
-alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=3.0)
-alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=10.0)
-alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=10.0,t2=10.0)
-alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_compound, n_sim=5000, t1=3.0,t2=3.0)
-alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_compound, n_sim=5000, lmb=5.0, t1=10.0,t2=10.0)
+    plt.plot(alpha_hats1,alphas1,label="t1=10; t2=3; lmb=20")
+    plt.plot(alpha_hats2,alphas2,label="t1=3; t2=10; lmb=20")
+    plt.plot(alpha_hats3,alphas3,label="t1=10; t2=10; lmb=20")
+    plt.plot(alpha_hats4,alphas4,label="t1=3; t2=3; lmb=20")
+    plt.plot(alpha_hats5,alphas5,label="t1=10; t2=10; lmb=5")
+
+    plt.xlabel('Alpha you set')
+    plt.ylabel('Alpha you get')
+    plt.legend(facecolor="black", edgecolor="black")
+    fig.savefig("C:\\Users\\rohit\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_mapping_no_change.png", \
+                    facecolor=fig.get_facecolor(), transparent=True)
+    plt.close()
 
 
-plt.plot(alpha_hats1,alphas1,label="t1=10; t2=3; lmb=20")
-plt.plot(alpha_hats2,alphas2,label="t1=3; t2=10; lmb=20")
-plt.plot(alpha_hats3,alphas3,label="t1=10; t2=10; lmb=20")
-plt.plot(alpha_hats4,alphas4,label="t1=3; t2=3; lmb=20")
-plt.plot(alpha_hats5,alphas5,label="t1=10; t2=10; lmb=5")
+alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_poisson)
+alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_poisson,scale=2.0)
+alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_poisson,scale=0.5)
+alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_compound, n_sim=5000)
+alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_compound, n_sim=5000,scale=0.3)
+alphas6,betas6,alpha_hats6 = run_simulns(fn=dist_rvs_compound, n_sim=5000,scale=22.4)
 
 
-plt.xlabel('Alpha you set')
-plt.ylabel('Alpha you get')
-plt.legend(facecolor="black", edgecolor="black")
-fig.savefig("C:\\Users\\rohit\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_mapping_no_change.png", \
-                facecolor=fig.get_facecolor(), transparent=True)
-plt.close()
+plt.plot(alpha_hats1,alphas1,label="sc=1.0 on Poisson")
+#plt.plot(alpha_hats2,alphas2,label="sc=2.0")
+#plt.plot(alpha_hats3,alphas3,label="sc=0.5")
+plt.plot(alpha_hats4,alphas4,label="sc=1.0 on Compound Poisson")
+#plt.plot(alpha_hats5,alphas5,label="sc=0.3 on CPP")
+plt.plot(alpha_hats6,alphas6,label="sc=22.4 on Compound Poisson")
+
+plt.legend()
+plt.show()
+
+
+plt.plot(alphas1,betas1,label='UMP poisson on poisson')
+plt.plot(alphas2,betas2,label='UMP poisson on poisson')
+plt.plot(alphas3,betas3,label='UMP poisson on poisson')
+plt.plot(alphas4,betas4,label='UMP poisson on poisson')
+plt.plot(alphas5,betas5,label='UMP poisson on poisson')
+plt.plot(alphas6,betas6,label='UMP poisson on poisson')
+plt.show()
+
+
+alpha_hats = np.arange(0,1,0.0001)
+a = binom.isf(alpha_hats,50,0.5)
+betas = binom.cdf(a,50,0.65)
+plt.plot(betas,alpha_hats)
+plt.show()
 
