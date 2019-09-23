@@ -14,7 +14,7 @@ def rateratio_test(n1,t1,n2,t2,scale=1.0):
 
 def alpha_beta_curve(rvs_fn, n_sim=10000, lmb=20, t1=10, t2=3, scale=1.0):
     ## First the null hypothesis..
-    alpha_hats = np.concatenate((np.arange(0.000001,0.0099,0.0001), 
+    alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.000001), 
                                 np.arange(0.01,1.00,0.01), 
                                 np.arange(0.991,1.00,0.001)),axis=0)
     alphas = np.zeros(len(alpha_hats))
@@ -59,7 +59,7 @@ def run_simulns(fn, n_sim=50000, scale=1.0):
 
 
 alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_poisson)
-alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=5000)
+alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=50000)
 alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000)
 alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=25.0)
 alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=1/10.0)
@@ -73,8 +73,8 @@ mpl.rcParams.update({'text.color' : "white",
                         "axes.edgecolor" : "white"})
 
 fig, ax = plt.subplots(facecolor='black')
-ax.set_axis_bgcolor("black")
-
+#ax.set_axis_bgcolor("black")
+ax.set_facecolor("black")
 
 def plot_all_combinations():
     plt.plot(alphas1,betas1,label='UMP poisson on poisson')
@@ -96,9 +96,10 @@ def plot_alpha_with_hat():
     plt.xlabel('Alpha you set')
     plt.ylabel('Alpha you get')
     plt.legend(facecolor="black", edgecolor="black")
-    fig.savefig("C:\\Users\\rohit\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_hat_w_alpha.png", \
+    fig.savefig("C:\\Users\\ropandey\\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_hat_w_alpha.png", \
         facecolor=fig.get_facecolor(), transparent=True)
     plt.close()
+
 
 def plot_alpha_beta():
     plt.plot(alpha_hats1,alphas1,label='UMP poisson on poisson')
@@ -106,8 +107,18 @@ def plot_alpha_beta():
     plt.xlabel('Alpha')
     plt.ylabel('Beta')
     plt.legend(facecolor="black", edgecolor="black")
-    fig.savefig("C:\\Users\\rohit\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_hat_w_alpha.png", \
+    fig.savefig("C:\\Users\\ropandey\\OneDrive\\MSFTProj\\HypothTestAIR\\alpha_hat_w_alpha.png", \
         facecolor=fig.get_facecolor(), transparent=True)
     plt.close()
 
+
+def fit_alpha_profile(alpha_hats2,alphas2):
+
+zz=np.polyfit(alpha_hats2,alphas2,8)
+alpha_mat = np.array([alpha_hats2**8,alpha_hats2**7,alpha_hats2**6,alpha_hats2**5,alpha_hats2**4,\
+        alpha_hats2**3,alpha_hats2**2,alpha_hats2**1,alpha_hats2**0]).T
+alpha_pred = np.dot(alpha_mat,zz)
+plt.plot(alpha_hats2,alphas2,label='actual')
+plt.plot(alpha_hats2,alpha_pred,label='polynomial')
+plt.show()
 
