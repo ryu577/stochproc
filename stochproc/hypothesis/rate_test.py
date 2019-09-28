@@ -128,13 +128,16 @@ def bake_time_v2(t1=25,
         t2+=1
     return t2, np.array(betas)
 
+
 def bake_time_v3(t1=25,
                     lmb_base=12,alpha=0.05,
                     beta=0.05,effect=3):
     fn = lambda t2: UMPPoisson.beta_on_poisson_closed_form(t1=t1,t2=t2,\
                         lmb_base=lmb_base,
-                        alpha=alpha,effect=effect)[0]-0.05
-    #root = optimize.bisect(fn,1,100)
-    root = optimize.root(fn,x0=5).x[0]
+                        alpha=alpha,effect=effect)[0]-beta
+    if fn(100)*fn(1)>0:
+        return 100
+    root = optimize.bisect(fn,1,200)
+    #root = optimize.root(fn,x0=5).x[0]
     return root
 
