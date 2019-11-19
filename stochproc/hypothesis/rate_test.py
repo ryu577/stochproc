@@ -30,18 +30,22 @@ class UMPPoisson(object):
 
     @staticmethod
     def beta_on_poisson_closed_form(t1=25,t2=25,lmb_base=12,effect=3,alpha=0.05):
-        poisson_mu = lmb_base*t1+(lmb_base+effect)*t2        
+        poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
         beta = 0.0; prob_mass = 0.0
-        p_null=t1/(t1+t2) 
+        p_null=t1/(t1+t2)
         mu_1 = t1*(lmb_base+effect); mu_2 = t2*lmb_base
         p_alt = mu_1/(mu_1+mu_2)
         int_poisson_mu = int(poisson_mu); pmf = 1.0
-        while pmf > 1e-7:
+        while pmf > 1e-7 and int_poisson_mu>=0:
             pmf = poisson.pmf(int_poisson_mu,poisson_mu)
             prob_mass += pmf
             beta += pmf*binom_tst_beta(p_null,p_alt,int_poisson_mu,alpha)
+            if np.isnan(beta):
+                break
             int_poisson_mu -= 1
+
         int_poisson_mu = int(poisson_mu)+1; pmf=1.0
+
         while pmf > 1e-7:
             pmf = poisson.pmf(int_poisson_mu,poisson_mu)
             prob_mass += pmf
@@ -70,10 +74,12 @@ def p_n1(t1, t2, n1, n2):
     n=n1+n2; t=t1+t2
     return t1**n1*t2**n2/(t**n*comb(n,n1))
 
+
 def rateratio_test(n1,t1,n2,t2,scale=1.0):
     n2, n1 = n2/scale, n1/scale
     p_val = binom_test(n2,n1+n2,t2/(t1+t2),alternative='greater')
     return p_val
+
 
 def est_rejection_rate(lmb1=12.0, lmb2=12.0,
                         t1=2.5, t2=2.5, n=10000,
@@ -140,4 +146,20 @@ def bake_time_v3(t1=25,
     root = optimize.bisect(fn,1,200)
     #root = optimize.root(fn,x0=5).x[0]
     return root
+
+
+##t1 and t2 are in 100-VM-days
+### lmb_base: 1 failure per 100-VM-days.
+## 10 nodes per hw and 10 VMs per node. So, 100 VMs per day.
+
+UMPPoisson.beta_on_poisson_closed_form(t1=1.0,t2=1.0,\
+                        lmb_base=20,
+                        alpha=0.1,effect=20)
+
+## We need 20 events per 100-VM-days.
+
+n=660
+UMPPoisson.beta_on_poisson_closed_form(t1=n/10,t2=n/10,\
+                        lmb_base=20,
+                        alpha=0.1,effect=20*.1)
 

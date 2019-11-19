@@ -1,8 +1,11 @@
 from scipy.stats import binom_test, poisson, binom
+from scipy.special import comb
 import numpy as np
 
 
 def binom_tst_beta(p_null=0.5,p_alt=0.6,n=10,alpha_hat=0.05):
+    if n==0:
+        return 1.0
     x_a = binom.isf(alpha_hat,n,p_null)
     return binom.cdf(x_a,n,p_alt)
 
