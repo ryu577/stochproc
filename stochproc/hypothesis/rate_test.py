@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import comb
-from scipy.stats import binom_test, poisson, binom
+from scipy.stats import binom_test, poisson, binom, nbinom
 from stochproc.hypothesis.binom_test import binom_tst_beta
 from scipy import optimize
 
@@ -29,7 +29,8 @@ class UMPPoisson(object):
         return beta
 
     @staticmethod
-    def beta_on_poisson_closed_form(t1=25,t2=25,lmb_base=12,effect=3,alpha=0.05):
+    def beta_on_poisson_closed_form(t1=25,t2=25,\
+                lmb_base=12,effect=3,alpha=0.05):
         poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
         beta = 0.0; prob_mass = 0.0
         p_null=t1/(t1+t2)
@@ -43,15 +44,77 @@ class UMPPoisson(object):
             if np.isnan(beta):
                 break
             int_poisson_mu -= 1
-
         int_poisson_mu = int(poisson_mu)+1; pmf=1.0
-
         while pmf > 1e-7:
             pmf = poisson.pmf(int_poisson_mu,poisson_mu)
             prob_mass += pmf
             beta += pmf*binom_tst_beta(p_null,p_alt,int_poisson_mu,alpha)
             int_poisson_mu += 1
         return beta, prob_mass
+
+    @staticmethod
+    def beta_on_poisson_closed_form2(t1=25,t2=25,\
+                lmb_base=12,effect=3,alpha=0.05):
+        beta=0; n=0
+        beta_n=0; beta_del=0
+        p=lmb_base*t1/(lmb_base*t1+(lmb_base+effect)*t2)
+        q=t1/(t1+t2)
+        mu_1 = t1*(lmb_base+effect); mu_2 = t2*lmb_base
+        poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
+        int_poisson_mu = int(poisson_mu)
+        n = int_poisson_mu-1
+        while beta_del > 1e-9 or n==int_poisson_mu-1:
+            n+=1
+            surv_inv = int(binom.isf(alpha,n,q))
+            beta_del=0
+            for j in range(surv_inv+1):
+                beta_n = poisson.pmf(j,(lmb_base+effect)*t2)*poisson.pmf(n-j,lmb_base*t1)
+                beta_del+=beta_n
+                beta += beta_n
+        n = int_poisson_mu
+        while beta_del > 1e-9 or n==int_poisson_mu:
+            n-=1
+            surv_inv = int(binom.isf(alpha,n,q))
+            beta_del=0
+            for j in range(surv_inv+1):
+                beta_n = poisson.pmf(j,(lmb_base+effect)*t2)*poisson.pmf(n-j,lmb_base*t1)
+                beta_del+=beta_n
+                beta += beta_n
+        return beta
+
+    @staticmethod
+    def beta_on_negbinom_closed_form2(t1=25,t2=25,\
+                theta_base=10,m=100.0,effect=3,alpha=0.05):
+        beta=0; n=0
+        beta_n=0; beta_del=0
+        q=t1/(t1+t2)
+        lmb_base = m/theta_base
+        mu_1 = t1*(lmb_base+effect); mu_2 = t2*lmb_base
+        p1 = theta_base/(theta_base+t1)
+        del_theta = theta_base**2*effect/(m+theta_base*effect)
+        theta2=theta_base-del_theta
+        p2 = theta2/(t2+theta2)
+        poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
+        int_poisson_mu = int(poisson_mu)
+        n = int_poisson_mu-1
+        while beta_del > 1e-9 or n==int_poisson_mu-1:
+            n+=1
+            surv_inv = int(binom.isf(alpha,n,q))
+            beta_del=0
+            for j in range(surv_inv+1):
+                beta_n = nbinom.pmf(j,m,p2)*nbinom.pmf(n-j,m,p1)
+                beta_del+=beta_n
+                beta += beta_n
+        n = int_poisson_mu
+        while beta_del > 1e-9 or n==int_poisson_mu:
+            n-=1
+            surv_inv = int(binom.isf(alpha,n,q))
+            beta_del=0
+            for j in range(surv_inv+1):
+                beta_n = nbinom.pmf(j,m,p2)*nbinom.pmf(n-j,m,p1)
+                beta_del+=beta_n
+                beta += beta_n
+        return beta
 
     @staticmethod
     def poisson_one_sim(lmb1,t1,lmb2,t2,alternative='greater'):
@@ -153,13 +216,18 @@ def bake_time_v3(t1=25,
 ## 10 nodes per hw and 10 VMs per node. So, 100 VMs per day.
 
 UMPPoisson.beta_on_poisson_closed_form(t1=1.0,t2=1.0,\
-                        lmb_base=20,
+                        lmb_base=20,\
                         alpha=0.1,effect=20)
 
 ## We need 20 events per 100-VM-days.
 
 n=660
 UMPPoisson.beta_on_poisson_closed_form(t1=n/10,t2=n/10,\
-                        lmb_base=20,
+                        lmb_base=20,\
                         alpha=0.1,effect=20*.1)
+
+
+UMPPoisson.beta_on_poisson_closed_form2(t1=1.0,t2=1.0,\
+                        lmb_base=20,\
+                        alpha=0.1,effect=20)
 
