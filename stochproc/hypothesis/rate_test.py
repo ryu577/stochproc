@@ -84,7 +84,7 @@ class UMPPoisson(object):
 
     @staticmethod
     def beta_on_negbinom_closed_form2(t1=25,t2=25,\
-                theta_base=10,m=100.0,effect=3,alpha=0.05):
+                theta_base=10,m=100.0,effect=3,alpha=0.05,cut_dat=1e4):
         beta=0; n=0
         beta_n=0; beta_del=0
         q=t1/(t1+t2)
@@ -97,24 +97,60 @@ class UMPPoisson(object):
         poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
         int_poisson_mu = int(poisson_mu)
         n = int_poisson_mu-1
-        while beta_del > 1e-9 or n==int_poisson_mu-1:
+        dels1 = []; ns1=[]
+        if effect == 0:
+            nbinom_s1={}; nbinom_s2 = nbinom_s1
+        else:
+            nbinom_s1={}; nbinom_s2={}
+        while (beta_del > 1e-7 or n==int_poisson_mu-1):
             n+=1
+            if n-int_poisson_mu>cut_dat:
+                break
             surv_inv = int(binom.isf(alpha,n,q))
             beta_del=0
             for j in range(surv_inv+1):
-                beta_n = nbinom.pmf(j,m,p2)*nbinom.pmf(n-j,m,p1)
+                if j in nbinom_s1:
+                    nb1 = nbinom_s1[j]
+                else:
+                    nb1 = nbinom.pmf(j,m,p2)
+                    nbinom_s1[j] = nb1
+                if n-j in nbinom_s2:
+                    nb2 = nbinom_s2[n-j]
+                else:
+                    nb2 = nbinom.pmf(n-j,m,p1)
+                    nbinom_s2[n-j] = nb2
+                beta_n = nb1*nb2
                 beta_del+=beta_n
                 beta += beta_n
+            dels1.append(beta_del); ns1.append(n)
         n = int_poisson_mu
-        while beta_del > 1e-9 or n==int_poisson_mu:
+        dels2 = []; ns2=[]
+        while beta_del > 1e-7 or n==int_poisson_mu:
             n-=1
+            if int_poisson_mu-n>cut_dat:
+                break
             surv_inv = int(binom.isf(alpha,n,q))
             beta_del=0
             for j in range(surv_inv+1):
-                beta_n = nbinom.pmf(j,m,p2)*nbinom.pmf(n-j,m,p1)
+                if j in nbinom_s1:
+                    nb1 = nbinom_s1[j]
+                else:
+                    nb1 = nbinom.pmf(j,m,p2)
+                    nbinom_s1[j] = nb1
+                if n-j in nbinom_s2:
+                    nb2 = nbinom_s2[n-j]
+                else:
+                    nb2 = nbinom.pmf(n-j,m,p1)
+                    nbinom_s2[n-j] = nb2
+                beta_n = nb1*nb2
                 beta_del+=beta_n
                 beta += beta_n
-        return beta
+            dels2.append(beta_del); ns2.append(n)
+        dels1 = np.array(dels1); dels2 = np.array(dels2); dels2 = dels2[::-1]
+        ns1 = np.array(ns1); ns2 = np.array(ns2); ns2 = ns2[::-1]
+        ns = np.concatenate((ns2,ns1),axis=0)
+        dels = np.concatenate((dels2,dels1),axis=0)
+        return beta, dels, ns, int_poisson_mu
 
     @staticmethod
     def poisson_one_sim(lmb1,t1,lmb2,t2,alternative='greater'):
@@ -210,24 +246,44 @@ def bake_time_v3(t1=25,
     #root = optimize.root(fn,x0=5).x[0]
     return root
 
+def experiments():
+    ##t1 and t2 are in 100-VM-days
+    ### lmb_base: 1 failure per 100-VM-days.
+    ## 10 nodes per hw and 10 VMs per node. So, 100 VMs per day.
 
-##t1 and t2 are in 100-VM-days
-### lmb_base: 1 failure per 100-VM-days.
-## 10 nodes per hw and 10 VMs per node. So, 100 VMs per day.
+    UMPPoisson.beta_on_poisson_closed_form(t1=1.0,t2=1.0,\
+                            lmb_base=20,\
+                            alpha=0.1,effect=20)
 
-UMPPoisson.beta_on_poisson_closed_form(t1=1.0,t2=1.0,\
-                        lmb_base=20,\
-                        alpha=0.1,effect=20)
+    ## We need 20 events per 100-VM-days.
 
-## We need 20 events per 100-VM-days.
-
-n=660
-UMPPoisson.beta_on_poisson_closed_form(t1=n/10,t2=n/10,\
-                        lmb_base=20,\
-                        alpha=0.1,effect=20*.1)
+    n=660
+    UMPPoisson.beta_on_poisson_closed_form(t1=n/10,t2=n/10,\
+                            lmb_base=20,\
+                            alpha=0.1,effect=20*.1)
 
 
-UMPPoisson.beta_on_poisson_closed_form2(t1=1.0,t2=1.0,\
-                        lmb_base=20,\
-                        alpha=0.1,effect=20)
+    UMPPoisson.beta_on_poisson_closed_form2(t1=1.0,t2=1.0,\
+                            lmb_base=20,\
+                            alpha=0.1,effect=20)
+
+
+
+    import matplotlib.pyplot as plt
+
+    res=UMPPoisson.beta_on_negbinom_closed_form2(t1=200,t2=200,cut_dat=1000)
+    plt.plot(res[2],res[1])
+    plt.axvline(res[3])
+    plt.show()
+
+
+import matplotlib.pyplot as plt
+def binom_partial_sum(n,p=.5):
+    b_sum=0
+    for j in range(int(n/2)+1):
+        b_sum+=comb(n,j)*(1+p)**j
+    return b_sum/(2+p)**n
+
+sums = np.array([binom_partial_sum(i,p=0.2) for i in range(11,501,2)])
+plt.plot(np.arange(11,501,2),sums)
 
