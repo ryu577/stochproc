@@ -284,6 +284,8 @@ def binom_partial_sum(n,p=.5):
         b_sum+=comb(n,j)*(1+p)**j
     return b_sum/(2+p)**n
 
-sums = np.array([binom_partial_sum(i,p=0.2) for i in range(11,501,2)])
-plt.plot(np.arange(11,501,2),sums)
-
+sums1 = np.array([binom_partial_sum(i,p=0.2) for i in range(11,501,2)])
+sums2 = np.array([binom_partial_sum(i,p=0.3) for i in range(11,501,2)])
+plt.plot(np.arange(11,501,2),sums1)
+plt.plot(np.arange(11,501,2),sums2)
+plt.show()
