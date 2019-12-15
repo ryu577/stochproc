@@ -1,6 +1,5 @@
 import numpy as np
 
-
 # Let’s say we have 3 nodes and observe all three for a month.
 # Node 1: UP for 20 days; then goes to OFR (causing a fault and goes out of production); 
 #   then comes back to production on day 25 (start), runs fine until going back to OFR on 
@@ -12,6 +11,7 @@ import numpy as np
 ## Now, let's simulate a customer that comes and runs VMs on this kind of data.
 
 total_failure_time = 0
+
 for i in range(10000):
     time_to_failure = 0
     failed = False
