@@ -246,6 +246,7 @@ def bake_time_v3(t1=25,
     #root = optimize.root(fn,x0=5).x[0]
     return root
 
+
 def experiments():
     ##t1 and t2 are in 100-VM-days
     ### lmb_base: 1 failure per 100-VM-days.
@@ -268,7 +269,6 @@ def experiments():
                             alpha=0.1,effect=20)
 
 
-
     import matplotlib.pyplot as plt
 
     res=UMPPoisson.beta_on_negbinom_closed_form2(t1=200,t2=200,cut_dat=1000)
@@ -278,6 +278,7 @@ def experiments():
 
 
 import matplotlib.pyplot as plt
+
 def binom_partial_sum(n,p=.5):
     b_sum=0
     for j in range(int(n/2)+1):
