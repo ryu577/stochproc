@@ -102,13 +102,14 @@ class UMPPoisson(object):
             nbinom_s1={}; nbinom_s2 = nbinom_s1
         else:
             nbinom_s1={}; nbinom_s2={}
-        while (beta_del > 1e-7 or n==int_poisson_mu-1):
+        while (beta_del > 1e-9 or n==int_poisson_mu-1):
             n+=1
             if n-int_poisson_mu>cut_dat:
                 break
             surv_inv = int(binom.isf(alpha,n,q))
             beta_del=0
             for j in range(surv_inv+1):
+            #for j in range(n+1):
                 if j in nbinom_s1:
                     nb1 = nbinom_s1[j]
                 else:
@@ -125,13 +126,14 @@ class UMPPoisson(object):
             dels1.append(beta_del); ns1.append(n)
         n = int_poisson_mu
         dels2 = []; ns2=[]
-        while beta_del > 1e-7 or n==int_poisson_mu:
+        while beta_del > 1e-9 or n==int_poisson_mu:
             n-=1
             if int_poisson_mu-n>cut_dat:
                 break
             surv_inv = int(binom.isf(alpha,n,q))
             beta_del=0
             for j in range(surv_inv+1):
+            #for j in range(n+1):
                 if j in nbinom_s1:
                     nb1 = nbinom_s1[j]
                 else:
@@ -207,8 +209,8 @@ def est_rejection_rate(lmb1=12.0, lmb2=12.0,
 
 
 def bake_time(t1=25,
-                    lmb_base=12,alpha=0.05,
-                    beta=0.05,effect=3,n=1000):
+                lmb_base=12,alpha=0.05,
+                beta=0.05,effect=3,n=1000):
     t2=1.0; beta_tmp=1.0
     betas = []
     while beta_tmp>beta:
@@ -281,12 +283,11 @@ import matplotlib.pyplot as plt
 
 def binom_partial_sum(n,p=.5):
     b_sum=0
-    for j in range(int(n/2)+1):
+    for j in range(int(n/1.5)+1):
         b_sum+=comb(n,j)*(1+p)**j
     return b_sum/(2+p)**n
 
-sums1 = np.array([binom_partial_sum(i,p=0.2) for i in range(11,501,2)])
-sums2 = np.array([binom_partial_sum(i,p=0.3) for i in range(11,501,2)])
-plt.plot(np.arange(11,501,2),sums1)
-plt.plot(np.arange(11,501,2),sums2)
-plt.show()
+if __name__ == '__main__':
+    sums = np.array([binom_partial_sum(i,p=0.4) for i in range(11,501,2)])
+    plt.plot(np.arange(11,501,2),sums)
+

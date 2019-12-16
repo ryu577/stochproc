@@ -1,32 +1,47 @@
 import numpy as np
-from scipy.stats import poisson
+from scipy.stats import poisson, logser
 
 ## We can assume that the number of VMs on a node 
 #  will follow a binomial distribution.
 
 class CompoundPoisson():
     @staticmethod
-    def rvs_s(lmb=10,binom_n=23,binom_p=0.2):
+    def rvs_s(lmb=10,binom_n=23,binom_p=0.2,compound='binom'):
         N = np.random.poisson(lmb)
         rv = 0
         for _ in range(N):
-            vms = np.random.binomial(binom_n,binom_p)
+            if compound == 'binom':
+                vms = np.random.binomial(binom_n,binom_p)
+            else:
+                vms = logser.rvs(.8)
             rv += vms
         return rv
     
-    def __init__(self,lmb=10,n=23,p=0.2):
+    @staticmethod
+    def rvs_s_1(compound_rvs, lmb=10):
+        n = np.random.poisson(lmb)
+        rv=0
+        for _ in range(n):
+            rv += compound_rvs()
+        return rv
+
+    def __init__(self,lmb=10,comp=logser):
         self.lmb=lmb
-        self.n=23
-        self.p=p
+        self.comp = comp
     
     def rvs(self):
-        return CompoundPoisson.rvs_s(self.n,self.p)
+        #return CompoundPoisson.rvs_s(self.n,self.p)
+        return 1
+
+    def cdf(self,x):
+        return sum(np.array([self.rvs() \
+                    for i in range(10000)]) < x)
 
 
 def verify_variance():
     binom_n=23; binom_p=0.2
     rvs = []
-    for i in range(50000):
+    for _ in range(50000):
         rvs.append(CompoundPoisson.rvs_s(binom_n, binom_p))
 
     rvs = np.array(rvs)
