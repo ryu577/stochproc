@@ -209,8 +209,8 @@ def est_rejection_rate(lmb1=12.0, lmb2=12.0,
 
 
 def bake_time(t1=25,
-                    lmb_base=12,alpha=0.05,
-                    beta=0.05,effect=3,n=1000):
+                lmb_base=12,alpha=0.05,
+                beta=0.05,effect=3,n=1000):
     t2=1.0; beta_tmp=1.0
     betas = []
     while beta_tmp>beta:
