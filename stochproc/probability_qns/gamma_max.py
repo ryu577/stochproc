@@ -49,3 +49,4 @@ def tst_approaches():
     end = time.process_time()
     print("execution time {} seconds".format(end - start))
 
+
