@@ -37,7 +37,6 @@ rvs_comp_poisson_1 = lambda t: rvs_comp_poisson(t,theta=4,m=100)
 
 alphas3,betas3,alpha_hats3 = alpha_beta_tracer(rvs_comp_poisson, rvs_comp_poisson_1,10,10)
 
-
 ## Now the plotting.
 plt.plot(alphas1,betas1,label='UMP poisson on poisson')
 plt.plot(alphas2,betas2,label='UMP poisson on mixed poisson')

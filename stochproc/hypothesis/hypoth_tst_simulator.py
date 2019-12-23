@@ -32,7 +32,7 @@ def alpha_beta_curve(rvs_fn, n_sim=10000, lmb=20, t1=10, t2=3, \
     return alphas, betas, alpha_hats
 
 
-def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0):
+def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0, hypoth_tst=rateratio_test):
     ## First the null hypothesis..
     alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.000001), 
                                 np.arange(0.01,1.00,0.01), 
@@ -42,7 +42,7 @@ def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0):
     for _ in range(n_sim):
         m1 = rvs_fn_1(t1)
         m2 = rvs_fn_1(t2)
-        p_val = rateratio_test(m1,t1,m2,t2,scale)
+        p_val = hypoth_tst(m1,t1,m2,t2,scale)
         alphas += (p_val < alpha_hats)/n_sim
 
     ## Now the alternate hypothesis
@@ -50,7 +50,7 @@ def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0):
     for _ in range(n_sim):
         m1 = rvs_fn_1(t1)
         m2 = rvs_fn_2(t2)
-        p_val = rateratio_test(m1,t1,m2,t2,scale)
+        p_val = hypoth_tst(m1,t1,m2,t2,scale)
         betas += 1/n_sim - (p_val < alpha_hats)/n_sim
     return alphas, betas, alpha_hats
 
