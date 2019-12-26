@@ -83,6 +83,34 @@ class UMPPoisson(object):
         return beta
 
     @staticmethod
+    def beta_on_poisson_closed_form3(t1=25,t2=25,\
+                lmb_base=12,effect=3):
+        ## This method is only for alpha=0.5
+        poisson_mu = (lmb_base+effect)*t2
+        poisson_mu_base = lmb_base*t1
+        prob_mass = 0.0
+        int_poisson_mu = int(poisson_mu); pmf = 1.0
+        beta = 0
+        while pmf > 1e-7 and int_poisson_mu>=0:
+            pmf = poisson.pmf(int_poisson_mu,poisson_mu)
+            prob_mass += pmf
+            beta += pmf*poisson.sf(int_poisson_mu-1,poisson_mu_base)
+            int_poisson_mu -= 1
+        int_poisson_mu = int(poisson_mu)+1; pmf=1.0
+        while pmf > 1e-7:
+            pmf = poisson.pmf(int_poisson_mu,poisson_mu)
+            prob_mass += pmf
+            beta += pmf*poisson.sf(int_poisson_mu-1,poisson_mu_base)
+            int_poisson_mu += 1
+        return beta, prob_mass
+
+    @staticmethod
+    def beta_on_negbinom_closed_form(t1=25,t2=25,\
+                theta_base=10,m=100.0,deltheta=3,alpha=0.05,cut_dat=1e4):
+        del_lmb = m*deltheta/theta_base/(theta_base-deltheta)
+        return UMPPoisson.beta_on_negbinom_closed_form2(t1,t2,theta_base,m,del_lmb,alpha,cut_dat)
+
+    @staticmethod
     def beta_on_negbinom_closed_form2(t1=25,t2=25,\
                 theta_base=10,m=100.0,effect=3,alpha=0.05,cut_dat=1e4):
         beta=0; n=0
@@ -153,6 +181,29 @@ class UMPPoisson(object):
         ns = np.concatenate((ns2,ns1),axis=0)
         dels = np.concatenate((dels2,dels1),axis=0)
         return beta, dels, ns, int_poisson_mu
+
+    @staticmethod
+    def beta_on_negbinom_closed_form3(t1=25,t2=25,\
+                theta_base=10,m=100.0,deltheta=3):
+        """
+        This method only works for alpha=0.5.
+        """
+        if deltheta > theta_base:
+            #TODO: Replace this with exception.
+            print("deltheta must be smaller than theta.")
+            return
+        theta_alt = theta_base-deltheta
+        neg_binom_ix = 0
+        p2 = theta_alt/(t2+theta_alt)
+        p1 = theta_base/(t1+theta_base)
+        mode1 = int(p1*(m-1)/(1-p1))
+        beta = 0; del_beta = 1
+        while del_beta>1e-7 or neg_binom_ix<mode1 or neg_binom_ix<1000:
+            del_beta = nbinom.pmf(neg_binom_ix,m,p2)*nbinom.sf(neg_binom_ix-1,m,p1)
+            beta += del_beta
+            neg_binom_ix+=1
+        return beta
+
 
     @staticmethod
     def poisson_one_sim(lmb1,t1,lmb2,t2,alternative='greater'):

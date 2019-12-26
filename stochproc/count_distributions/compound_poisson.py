@@ -12,6 +12,8 @@ class CompoundPoisson():
         for _ in range(N):
             if compound == 'binom':
                 vms = np.random.binomial(binom_n,binom_p)
+            elif compound == 'binom_pl1':
+                vms = np.random.binomial(binom_n,binom_p)+1
             else:
                 vms = logser.rvs(.8)
             rv += vms

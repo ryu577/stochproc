@@ -10,9 +10,9 @@ from datetime import datetime
 def alpha_beta_curve(rvs_fn, n_sim=10000, lmb=20, t1=10, t2=3, \
                         scale=1.0, dellmb = 10.0):
     ## First the null hypothesis..
-    alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.000001), 
-                                np.arange(0.01,1.00,0.01), 
-                                np.arange(0.991,1.00,0.001)),axis=0)
+    alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.0000001),
+                                        np.arange(0.01,1.00,0.001), 
+                                        np.arange(0.991,1.00,0.001)),axis=0)
     alphas = np.zeros(len(alpha_hats))
 
     ## First generate from null and find alpha_hat and alpha.
@@ -34,9 +34,9 @@ def alpha_beta_curve(rvs_fn, n_sim=10000, lmb=20, t1=10, t2=3, \
 
 def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0, hypoth_tst=rateratio_test):
     ## First the null hypothesis..
-    alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.000001), 
-                                np.arange(0.01,1.00,0.01), 
-                                np.arange(0.991,1.00,0.001)),axis=0)
+    alpha_hats = np.concatenate((np.arange(0.000000000001,0.0099,0.0000001),
+                                        np.arange(0.01,1.00,0.001), 
+                                        np.arange(0.991,1.00,0.001)),axis=0)
     alphas = np.zeros(len(alpha_hats))
     ## First generate from null and find alpha_hat and alpha.
     for _ in range(n_sim):
@@ -48,6 +48,7 @@ def alpha_beta_tracer(rvs_fn_1, rvs_fn_2, t1=10, t2=10, n_sim=10000, scale=1.0, 
     ## Now the alternate hypothesis
     betas = np.zeros(len(alpha_hats))
     for _ in range(n_sim):
+        #TODO: recycle the m1 or m2 from alpha simulation.
         m1 = rvs_fn_1(t1)
         m2 = rvs_fn_2(t2)
         p_val = hypoth_tst(m1,t1,m2,t2,scale)

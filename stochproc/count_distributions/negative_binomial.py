@@ -28,6 +28,11 @@ def p_n1_pl_n2(n,theta,m,t1,t2):
     return summ
 
 
+def rvs_mxd_poisson(t, theta=5, m=100):
+    p = theta/(theta+t)
+    return nbinom.rvs(m,p)
+
+
 if __name__ == '__main__':
     t1=1; t2=2
     theta = 0.5; m = 3
