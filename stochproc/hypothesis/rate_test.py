@@ -204,6 +204,41 @@ class UMPPoisson(object):
             neg_binom_ix+=1
         return beta
 
+    @staticmethod
+    def alpha_on_determinist_compound_closed_form(lmb=10.0,t1=10,\
+                                                t2=10,l=3,verbose=False):
+        alpha_hats = np.arange(0.00001,1.0,0.01)
+        #alpha_hats = np.array([0.05])
+        p = t2/(t1+t2)
+        alphas = np.zeros(len(alpha_hats))
+        k = int(lmb*(t1+t2))
+        alpha_dels = np.ones(len(alpha_hats))
+        total_pois_mass = 0.0
+        #TODO: Replace this with other condition.
+        while sum(alpha_dels)>1e-7*len(alpha_dels):
+            isfs = binom.isf(alpha_hats,k*l,p)
+            cdfs = binom.sf((isfs/l).astype(int),k,p)
+            pmf = poisson.pmf(k,lmb*(t1+t2))
+            total_pois_mass+=pmf
+            alpha_dels = pmf*cdfs
+            alphas += alpha_dels
+            if verbose and (k-int(lmb*(t1+t2)))%100==0:
+                print("k="+str(k-int(lmb*(t1+t2)))+" alpha_dels sum: " + str(sum(alpha_dels)))
+            k+=1
+        if verbose:
+            print("Completed first loop")
+        k = int(lmb*(t1+t2))-1
+        while k>=0:
+            isfs = binom.isf(alpha_hats,k*l,p)
+            cdfs = binom.sf((isfs/l).astype(int),k,p)
+            pmf = poisson.pmf(k,lmb*(t1+t2))
+            total_pois_mass+=pmf
+            alpha_dels = pmf*cdfs
+            if np.isnan(sum(alpha_dels)):
+                print(k)
+            alphas += alpha_dels
+            k-=1            
+        return alphas, alpha_hats, total_pois_mass
 
     @staticmethod
     def poisson_one_sim(lmb1,t1,lmb2,t2,alternative='greater'):

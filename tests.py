@@ -2,11 +2,15 @@ import numpy as np
 from stochproc.competitivecointoss.smallmarkov import *
 from stochproc.reliability.machinerepair import *
 from stochproc.hypothesis.rate_test import *
+import stochproc.hypothesis.rate_test as xtst
 from stochproc.hypothesis.hypoth_tst_simulator import *
 from stochproc.hypothesis.binom_test import *
 from stochproc.count_distributions.compound_poisson import CompoundPoisson
 from stochproc.count_distributions.negative_binomial import rvs_mxd_poisson
+import matplotlib.pyplot as plt
 import pytest
+from importlib import reload
+
 
 def tst_eigen_coefs():
 	coef = np.array(np.linalg.inv(np.linalg.eig(a)[1]).T[2])[0]*np.array(np.linalg.eig(a)[1][0])[0]
@@ -88,10 +92,9 @@ def tst_ump_poisson_on_comp_poisson():
 
 
 ##Now mixed Poisson (negative binomial).
-
 def tst_ump_poisson_on_neg_binom():
 	beta_1 = UMPPoisson.beta_on_negbinom_closed_form(t1=10,t2=10,\
-	                theta_base=5,m=100.0,deltheta=1,alpha=0.05,cut_dat=1e4)[0]
+	                theta_base=5,m=100.0,deltheta=1,alpha=0.1,cut_dat=1e4)[0]
 
 	beta_1_50 = UMPPoisson.beta_on_negbinom_closed_form(t1=10,t2=10,\
 	                theta_base=5,m=100.0,deltheta=1,alpha=0.5,cut_dat=1e4)[0]
@@ -100,12 +103,39 @@ def tst_ump_poisson_on_neg_binom():
 	rvs_mxd_poisson_1 = lambda t: rvs_mxd_poisson(t,4,100)
 
 	alphas2,betas2,alpha_hats2 = alpha_beta_tracer(rvs_mxd_poisson_0, rvs_mxd_poisson_1,t1=10,t2=10)
-	ix=np.argmin((alpha_hats2-0.05)**2)
+	ix=np.argmin((alpha_hats2-0.1)**2)
 	print(alpha_hats2[ix])
 	beta_2 = betas2[ix]
+	print(beta_2)
 
 	beta_3 = UMPPoisson.beta_on_negbinom_closed_form3(t1=10,t2=10,\
 						theta_base=5,m=100.0,deltheta=1)
 	assert abs(beta_1-beta_2)/beta_1<1e-3 and abs(beta_1_50-beta_3)/beta_1_50<1e-9
+
+
+
+##If you want to be able to reload in interactive console without restarting, 
+# use rtst.<method>
+# instead of the method name directly.
+
+def tst_ump_poisson_on_determinist_cmpnd_alpha(plot=False):
+	alphas,alpha_hats,pois_mas = xtst.UMPPoisson.alpha_on_determinist_compound_closed_form(\
+											lmb=10.0,t1=10,t2=10,l=3)
+	ix=np.argmin((alpha_hats-0.05)**2)
+	print(alpha_hats[ix])
+	alpha = alphas[ix]
+	l=3; p=1.0
+	dist_rvs_compound = lambda lmb,t: CompoundPoisson.rvs_s(lmb*t,l,p,compound='binom')
+	alphas1, betas1, alpha_hats1 = alpha_beta_curve(dist_rvs_compound,n_sim=10000, \
+								lmb=10, t1=10, t2=10, scale=1.0, dellmb = 0)
+	ix=np.argmin((alpha_hats1-0.05)**2)
+	print(alpha_hats1[ix])
+	alpha1 = alphas1[ix]
+	if plot:
+		plt.plot(alpha_hats,alphas,label='Closed form')
+		plt.plot(alpha_hats1,alphas1,label='Simulated')
+		plt.legend()
+		plt.show()
+	assert abs(alpha1-alpha)/alpha1 < 1e-3
 
 

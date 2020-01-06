@@ -3,7 +3,8 @@ from scipy.stats import nbinom, binom_test, poisson
 from stochproc.count_distributions.negative_binomial import NegativeBinomial
 from scipy.stats import norm
 import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
+#TODO: Move plotting code to plots.py and remove dependency on pyray.
+from pyray.plotting.matplot_utils import newline
 
 
 class CompareTests():
@@ -23,7 +24,6 @@ class CompareTests():
         self.betas_rate = np.zeros(len(self.alpha_hats))
         nb_null = NegativeBinomial(mu=c.mu,k=c.k,t=c.t)
         nb_alt = NegativeBinomial(mu=c.mu*c.rr,k=c.k,t=c.t)
-
         recall = 0
         for _ in range(n_sim):
             x_s = 0
@@ -31,13 +31,11 @@ class CompareTests():
                 x_i = nb_null.rvs()
                 #x_i = poisson.rvs(c.mu)
                 x_s += x_i
-
             x_s_1 = 0
             for i in range(n1):
                 x_i = nb_null.rvs()
                 #x_i = poisson.rvs(c.mu)
                 x_s_1 += x_i
-
             y_s = 0
             for j in range(n1):
                 y_j = nb_alt.rvs()
@@ -90,27 +88,4 @@ def rate_tst(x_s,y_s,n0=10,n1=10):
     p=n1/(n0+n1)
     p_val = binom_test(y_s,x_s+y_s,p,alternative='greater')
     return p_val
-
-
-##TODO: Move this to plotting utilities. Perhaps pyray?
-def newline(p1, p2):
-    ax = plt.gca()
-    xmin, xmax = ax.get_xbound()
-
-    if(p2[0] == p1[0]):
-        xmin = xmax = p1[0]
-        ymin, ymax = ax.get_ybound()
-    else:
-        ymax = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmax-p1[0])
-        ymin = p1[1]+(p2[1]-p1[1])/(p2[0]-p1[0])*(xmin-p1[0])
-
-    l = mlines.Line2D([xmin,xmax], [ymin,ymax], color='black')
-    ax.add_line(l)
-    return l
-
-
-
-
-
-
 
