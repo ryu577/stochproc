@@ -30,14 +30,14 @@ class UMPPoisson(object):
 
     @staticmethod
     def beta_on_poisson_closed_form(t1=25,t2=25,\
-                lmb_base=12,effect=3,alpha=0.05):
+                lmb_base=12,effect=3,alpha=0.05,tol=1e-7):
         poisson_mu = lmb_base*t1+(lmb_base+effect)*t2
         beta = 0.0; prob_mass = 0.0
-        p_null=t1/(t1+t2)
-        mu_1 = t1*(lmb_base+effect); mu_2 = t2*lmb_base
-        p_alt = mu_1/(mu_1+mu_2)
+        p_null=t2/(t1+t2)
+        mu_2 = t2*(lmb_base+effect); mu_1 = t1*lmb_base
+        p_alt = mu_2/(mu_1+mu_2)
         int_poisson_mu = int(poisson_mu); pmf = 1.0
-        while pmf > 1e-7 and int_poisson_mu>=0:
+        while pmf > tol and int_poisson_mu>=0:
             pmf = poisson.pmf(int_poisson_mu,poisson_mu)
             prob_mass += pmf
             beta += pmf*binom_tst_beta(p_null,p_alt,int_poisson_mu,alpha)
@@ -45,7 +45,7 @@ class UMPPoisson(object):
                 break
             int_poisson_mu -= 1
         int_poisson_mu = int(poisson_mu)+1; pmf=1.0
-        while pmf > 1e-7:
+        while pmf > tol:
             pmf = poisson.pmf(int_poisson_mu,poisson_mu)
             prob_mass += pmf
             beta += pmf*binom_tst_beta(p_null,p_alt,int_poisson_mu,alpha)
@@ -328,9 +328,9 @@ def bake_time_v3(t1=25,
     fn = lambda t2: UMPPoisson.beta_on_poisson_closed_form(t1=t1,t2=t2,\
                         lmb_base=lmb_base,
                         alpha=alpha,effect=effect)[0]-beta
-    if fn(100)*fn(1)>0:
+    if fn(100)*fn(.01)>0:
         return 100
-    root = optimize.bisect(fn,1,200)
+    root = optimize.bisect(fn,.01,200)
     #root = optimize.root(fn,x0=5).x[0]
     return root
 

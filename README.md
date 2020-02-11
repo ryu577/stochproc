@@ -9,6 +9,26 @@ Some of these are taken from the book, Introduction to probability models by She
 The best way to demonstrate the capabilities of this library is to describe some stochastic processes
 it can model and show how to use it to extract some of their properties.
 
+# Installation
+To install the library, run (pyray was taken on pypi):
+
+```
+pip install stochproc
+```
+
+Make sure you have all the requirements (requirements.txt) installed. If not, you can run:
+
+```
+pip install -r requirements.txt
+```
+
+Alternately, you can fork/download the code and run from the main folder:
+
+```
+python setup.py install
+```
+
+
 # Machine reliability
 
 Let's say we start up a machine. It stays up some random amount of time before succumbing to failure.
