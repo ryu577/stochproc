@@ -139,3 +139,28 @@ def tst_ump_poisson_on_determinist_cmpnd_alpha(plot=False):
 	assert abs(alpha1-alpha)/alpha1 < 1e-3
 
 
+def weird_behavior():
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.1,\
+                                lmb_base=2,\
+                                alpha=0.1,effect=10.0)
+	#Out[19]: (0.7202482866175243, 0.9999999865720979)
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.6,t2=0.1,\
+                                lmb_base=2,\
+                                alpha=0.1,effect=10.0)
+	#Out[19]: (0.7359201224192129, 0.9999999938916904)
+	## Why does beta incrase as we increase t1??
+
+
+##Same effect from increasing t2:
+def weird_behavior2():
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.23,\
+									lmb_base=2,\
+									alpha=0.1,effect=10.0)
+	#Out[22]: (0.46287986945821635, 0.9999999800514148)
+
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.3,\
+									lmb_base=2,\
+									alpha=0.1,effect=10.0)
+	#Out[23]: (0.500373244503035, 0.9999999794679547)
+
+
