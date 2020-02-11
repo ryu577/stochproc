@@ -125,21 +125,20 @@ def weird_behavior2():
 
 def beta_with_t():
 	betas=[]
-	ts = np.arange(0.01,2.0,0.01)
+	ts = np.arange(1.5,6.5,0.1)
 	for t in ts:
 		beta = UMPPoisson.beta_on_poisson_closed_form(\
 									t1=t,t2=t,\
 									lmb_base=10,\
-									alpha=0.15,effect=20.0)
-		betas.append(beta)
+									alpha=0.1,effect=5.0)
+		betas.append(beta[0])
 	plt.xlabel('VM centuries in both groups')
 	plt.ylabel('False negative rate for the test holding false positive at 15%')
 	plt.plot(ts,betas)
 	plt.show()
 
 
-
-def concrete_case():
+def concrete_case_rising_beta():
 	UMPPoisson.beta_on_poisson(\
 								t1=0.695,t2=0.23,\
 								lmb_base=2,\
