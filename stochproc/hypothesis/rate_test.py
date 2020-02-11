@@ -339,23 +339,19 @@ def experiments():
     ##t1 and t2 are in 100-VM-days
     ### lmb_base: 1 failure per 100-VM-days.
     ## 10 nodes per hw and 10 VMs per node. So, 100 VMs per day.
-
     UMPPoisson.beta_on_poisson_closed_form(t1=1.0,t2=1.0,\
                             lmb_base=20,\
                             alpha=0.1,effect=20)
 
     ## We need 20 events per 100-VM-days.
-
     n=660
     UMPPoisson.beta_on_poisson_closed_form(t1=n/10,t2=n/10,\
                             lmb_base=20,\
                             alpha=0.1,effect=20*.1)
 
-
     UMPPoisson.beta_on_poisson_closed_form2(t1=1.0,t2=1.0,\
                             lmb_base=20,\
                             alpha=0.1,effect=20)
-
 
     import matplotlib.pyplot as plt
 
