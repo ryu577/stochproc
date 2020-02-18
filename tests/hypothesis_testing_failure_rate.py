@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import binom
 from stochproc.hypothesis.rate_test import *
 import stochproc.hypothesis.rate_test as xtst
 from stochproc.hypothesis.hypoth_tst_simulator import *
@@ -95,5 +96,64 @@ def tst_ump_poisson_on_determinist_cmpnd_alpha(plot=False):
 		plt.legend()
 		plt.show()
 	assert abs(alpha1-alpha)/alpha1 < 1e-3
+
+
+def weird_behavior():
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.1,\
+                                lmb_base=2,\
+                                alpha=0.1,effect=10.0)
+	#Out[19]: (0.7202482866175243, 0.9999999865720979)
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.6,t2=0.1,\
+                                lmb_base=2,\
+                                alpha=0.1,effect=10.0)
+	#Out[19]: (0.7359201224192129, 0.9999999938916904)
+	## Why does beta incrase as we increase t1??
+
+
+##Same effect from increasing t2:
+def weird_behavior2():
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.23,\
+									lmb_base=2,\
+									alpha=0.1,effect=10.0)
+	#Out[22]: (0.46287986945821635, 0.9999999800514148)
+
+	UMPPoisson.beta_on_poisson_closed_form(t1=0.5,t2=0.3,\
+									lmb_base=2,\
+									alpha=0.1,effect=10.0)
+	#Out[23]: (0.500373244503035, 0.9999999794679547)
+
+
+def beta_with_t():
+	betas=[]
+	ts = np.arange(1.5,6.5,0.1)
+	for t in ts:
+		beta = UMPPoisson.beta_on_poisson_closed_form(\
+									t1=t,t2=t,\
+									lmb_base=10,\
+									alpha=0.1,effect=5.0)
+		betas.append(beta[0])
+	plt.xlabel('VM centuries in both groups')
+	plt.ylabel('False negative rate for the test holding false positive at 15%')
+	plt.plot(ts,betas)
+	plt.show()
+
+
+def concrete_case_rising_beta():
+	UMPPoisson.beta_on_poisson(\
+								t1=0.695,t2=0.23,\
+								lmb_base=2,\
+								alpha=0.1,effect=10.0)
+	UMPPoisson.beta_on_poisson(\
+								t1=0.4988,t2=0.23,\
+								lmb_base=2,\
+								alpha=0.1,effect=10.0)
+	alpha_hats = np.arange(0.001,1.0,0.0001)
+	alphas = binom.sf(binom.isf(alpha_hats,10,0.5),10,0.5)
+	plt.plot(alpha_hats,alphas)
+	x1, y1 = [0, 1], [0, 1]
+	x2, y2 = [0, 1], [0, 1]
+	plt.plot(x1, y1, marker = 'o')
+	plt.show()
+
 
 

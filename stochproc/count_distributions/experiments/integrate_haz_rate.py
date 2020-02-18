@@ -31,3 +31,4 @@ for i in range(10000):
     ts = lmb*(np.log(1/np.random.uniform(size=100)**(1/k)))
     sum1+=sum(np.cumsum(ts)<t)
 sum1/10000
+
