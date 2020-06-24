@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import poisson
 from stochproc.hypothesis.hypoth_tst_simulator import run_simulns
 from stochproc.count_distributions.compound_poisson import CompoundPoisson
-
+from stochproc.hypothesis.rate_test import rateratio_test, rateratio_test_two_sided
 
 # mpl.rcParams.update({'text.color' : "white",
 #                         'axes.labelcolor' : "white",
@@ -22,7 +22,8 @@ dist_rvs_poisson = lambda lmb,t: poisson.rvs(lmb*t)
 
 def plot_tests_on_distributions():
     alphas1,betas1,alpha_hats1 = run_simulns(fn=dist_rvs_poisson)
-    alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=50000)
+    alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_poisson, hypoth_fn=rateratio_test_two_sided)
+    #alphas2,betas2,alpha_hats2 = run_simulns(fn=dist_rvs_compound, n_sim=50000)
     alphas3,betas3,alpha_hats3 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000)
     alphas4,betas4,alpha_hats4 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=25.0)
     alphas5,betas5,alpha_hats5 = run_simulns(fn=dist_rvs_interarrivalw, n_sim=5000, scale=1/10.0)

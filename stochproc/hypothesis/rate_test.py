@@ -267,6 +267,11 @@ def rateratio_test(n1,t1,n2,t2,scale=1.0):
     p_val = binom_test(n2,n1+n2,t2/(t1+t2),alternative='greater')
     return p_val
 
+def rateratio_test_two_sided(n1,t1,n2,t2,scale=1.0):
+    n2, n1 = n2/scale, n1/scale
+    p_val = binom_test(n2,n1+n2,t2/(t1+t2),alternative='two-sided')
+    return p_val
+
 
 def est_rejection_rate(lmb1=12.0, lmb2=12.0,
                         t1=2.5, t2=2.5, n=10000,

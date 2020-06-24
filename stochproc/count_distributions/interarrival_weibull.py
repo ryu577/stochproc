@@ -1,5 +1,5 @@
 import numpy as np
-from distributions.weibull import Weibull
+from stochproc.distributions.weibull import Weibull
 import matplotlib.pyplot as plt
 from scipy.special import gamma
 
