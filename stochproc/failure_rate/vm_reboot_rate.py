@@ -13,7 +13,7 @@ def est_moments(eps=0.3,lmb=7.0, t=1.0, n_sim=1000):
 
 eps=0.318; lmb=7.0
 var1 = -lmb*np.log(eps)/(1-eps)
-mu_sim, var_sim = est_moments(eps,lmb,1000000)
+mu_sim, var_sim = est_moments(eps,lmb,n_sim=500000)
 
 print("Actual mean:" + str(lmb))
 print("Simulated mean:" + str(mu_sim))
