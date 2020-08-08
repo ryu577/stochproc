@@ -109,22 +109,34 @@ print("actual mean-2: " +str((k-1)*200*lmb))
 #####
 ## Poisson mixture..
 
-k=1.2
-theta=1.0
+k=2.0
+theta=0.01
 
-s_n1=0
-n_sim=5000
+s_n1n2=0; s_n1=0; s_n2=0; s_n1_sq=0; s_n2_sq=0
+n_sim=3000
 for _ in range(n_sim):
-    t=0
-    n=0
-    while t<100:
-        lm = np.random.gamma(k,theta)
-        #lm=1.2
+    t=0; n1=0; n2=0
+    lm = np.random.gamma(k,theta)
+    #lm=1.2
+    while t<130:
         t+=np.random.exponential(1/lm)
-        n+=(t<100)#*(t>100)
-    s_n1+=n
+        toss = np.random.uniform()<0.5
+        n1+=(t>100)*(t<110)*toss
+        #n2+=(t>120)*(t<130)
+        n2+=(t>100)*(t<110)*(1-toss)
+    s_n1+=n1
+    s_n2+=n2
+    s_n1n2+=n1*n2
+    s_n1_sq+=n1*n1
+    s_n2_sq+=n2*n2
 
 e_n1 = s_n1/n_sim
+cov = s_n1n2/n_sim-(s_n1/n_sim)*(s_n2/n_sim)
+v_n1=s_n1_sq/n_sim-(s_n1/n_sim)**2
+v_n2=s_n2_sq/n_sim-(s_n2/n_sim)**2
+corln = cov/np.sqrt(v_n1*v_n2)
 
+print("Correlation: " + str(corln))
 print("Simulated mean: " + str(e_n1))
-print("Theoretical mean:" + str(k*100))
+print("Theoretical mean:" + str(k*10*theta))
+
