@@ -2,6 +2,7 @@ import numpy as np
 from scipy.stats import lomax, binom_test
 import matplotlib.pyplot as plt
 
+
 def critical_interval(ts1,w,delt):
     t_end_prev=0
     critical=0
