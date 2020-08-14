@@ -29,7 +29,7 @@ def birth_death_gen(lmb=1.0,mu=2.0,t=10000):
     rate lmb when its running and recovery happens at the
     rate mu once its down.
     """
-    up=True    
+    up=True
     ts=[]; cum_t=0; states=[]
     starts=[]; ends=[]
     while cum_t<t:
@@ -90,3 +90,8 @@ def combine_intervals(start_stop_dat,up_down_dat):
     uniond = uniond[states]
     return uniond
 
+
+def tst_gen_cad_data():
+    ida = IntervalData(.9,9.0,.01,100,1000)
+    ida.data_gen()
+    ida.interval_data
