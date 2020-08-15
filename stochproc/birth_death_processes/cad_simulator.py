@@ -90,3 +90,10 @@ def combine_intervals(start_stop_dat,up_down_dat):
     uniond = uniond[states]
     return uniond
 
+
+def tst_gen_cad_data():
+    ida = IntervalData(.9,9.0,.01,100,1000)
+    ida.data_gen()
+    cad_dat = ida.interval_dat
+
+

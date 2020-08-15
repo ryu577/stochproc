@@ -18,8 +18,16 @@ def critical_interval(ts1,w,delt):
 
 
 def critical_events(ts1,ts2,w):
+    """
+    ts2 rains down upon ts1.
+    """
+    if len(ts1)==0 or len(ts2)==0:
+        return 0
     j=0; critical=0
     for t in ts2:
+        #First time an entry in ts1 crosses
+        #current entry of ts2
+        # ts1[j-1].....t......ts1[j]
         while j<len(ts1) and t>ts1[j]:
             j+=1
         if w>0 and j>0:
@@ -27,6 +35,7 @@ def critical_events(ts1,ts2,w):
         elif j<len(ts1) and w<0:
             critical+=ts1[j]+w<t
     return critical
+
 
 def correlation_score(ts1,ts2,w,delt,verbose=False):
     interv = critical_interval(ts1,w,delt)
@@ -296,15 +305,15 @@ def lomax_renewal_stats(theta=10,k=2,n_sim=3000,null=False,\
     plt.plot(np.array([0,100,200,300,400]),np.array([e_n1,e_n2,e_n3,e_n4,e_n5]))
     plt.show()
 
-
-#### Verify Lomax equivalence with exponential-mix.
-k=4; theta=0.1
-## In numpy's definition, the scale, theta is inverse of Ross definition.
-lm = np.random.gamma(k,1/theta,size=1000)
-lomax_mix=np.random.exponential(1/lm)
-mean1=np.mean(lomax_mix)
-lomax_direct=lomax.rvs(c=k,scale=theta,size=1000)
-mean2=np.mean(lomax_direct)
-mean3 = theta/(k-1)
+def lomax_exponmix():
+    #### Verify Lomax equivalence with exponential-mix.
+    k=4; theta=0.1
+    ## In numpy's definition, the scale, theta is inverse of Ross definition.
+    lm = np.random.gamma(k,1/theta,size=1000)
+    lomax_mix=np.random.exponential(1/lm)
+    mean1=np.mean(lomax_mix)
+    lomax_direct=lomax.rvs(c=k,scale=theta,size=1000)
+    mean2=np.mean(lomax_direct)
+    mean3 = theta/(k-1)
 
 
