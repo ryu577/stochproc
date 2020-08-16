@@ -240,15 +240,15 @@ def lomax_renewal_stats(theta=10,k=2,n_sim=3000,null=False,\
     plt.plot(np.array([0,100,200,300,400]),np.array([e_n1,e_n2,e_n3,e_n4,e_n5]))
     plt.show()
 
-
-#### Verify Lomax equivalence with exponential-mix.
-k=4; theta=0.1
-## In numpy's definition, the scale, theta is inverse of Ross definition.
-lm = np.random.gamma(k,1/theta,size=1000)
-lomax_mix=np.random.exponential(1/lm)
-mean1=np.mean(lomax_mix)
-lomax_direct=lomax.rvs(c=k,scale=theta,size=1000)
-mean2=np.mean(lomax_direct)
-mean3 = theta/(k-1)
+def lomax_exponmix():
+    #### Verify Lomax equivalence with exponential-mix.
+    k=4; theta=0.1
+    ## In numpy's definition, the scale, theta is inverse of Ross definition.
+    lm = np.random.gamma(k,1/theta,size=1000)
+    lomax_mix=np.random.exponential(1/lm)
+    mean1=np.mean(lomax_mix)
+    lomax_direct=lomax.rvs(c=k,scale=theta,size=1000)
+    mean2=np.mean(lomax_direct)
+    mean3 = theta/(k-1)
 
 
