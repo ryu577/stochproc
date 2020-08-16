@@ -31,9 +31,9 @@ def critical_events(ts1,ts2,w):
         while j<len(ts1) and t>ts1[j]:
             j+=1
         if w>0 and j>0:
-            critical+=ts1[j-1]+w>t
+            critical+=(ts1[j-1]+w>t)
         elif j<len(ts1) and w<0:
-            critical+=ts1[j]+w<t
+            critical+=(ts1[j]+w<t)
     return critical
 
 
