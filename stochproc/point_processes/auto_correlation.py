@@ -1,45 +1,13 @@
 import numpy as np
 from scipy.stats import lomax, binom_test
 import matplotlib.pyplot as plt
-
-def critical_interval(ts1,w,delt):
-    t_end_prev=0
-    critical=0
-    for t1 in ts1:
-        t_start=min(t1,t1+w)
-        t_start=max(t_start,0)
-        t_end=max(t1,t1+w)
-        t_end=min(t_end,delt)
-        t_start=max(t_start,t_end_prev)
-        critical+=(t_end-t_start)
-        t_end_prev=t_end
-    return critical
-
-
-def critical_events(ts1,ts2,w):
-    j=0; critical=0
-    for t in ts2:
-        while j<len(ts1) and t>ts1[j]:
-            j+=1
-        if w>0 and j>0:
-            critical+=ts1[j-1]+w>t
-        elif j<len(ts1) and w<0:
-            critical+=ts1[j]+w<t
-    return critical
-
-def correlation_score(ts1,ts2,w,delt,verbose=False):
-    interv = critical_interval(ts1,w,delt)
-    evnts = critical_events(ts1,ts2,w)
-    if verbose:
-        print(str(evnts)+","+str(len(ts2))+","+str(interv/delt))
-    return binom_test(evnts,len(ts2),interv/delt,alternative='greater')
-
+import hypothtst.tst.correlation.pt_processes as ppr
 
 def p_vals_lomax_renewal(theta=10.0,k=2,n_sim=3000,null=False,\
                     window=4,intr_strt=400,intr_end=500,
                     verbose=False):
     p_vals = []
-    e_n=0        
+    e_n=0
     for _ in range(n_sim):
         t=0
         ts1 = []; ts2 = []
@@ -60,15 +28,14 @@ def p_vals_lomax_renewal(theta=10.0,k=2,n_sim=3000,null=False,\
         e_n+=len(ts2)/n_sim
         ts1=np.array(ts1); ts1-=intr_strt
         ts2=np.array(ts2); ts2-=intr_strt
-        p_val = correlation_score(ts1,ts2,window,(intr_end-intr_strt),\
+        p_val = ppr.correlation_score(ts1,ts2,window,(intr_end-intr_strt),\
                         verbose=verbose)
         p_vals.append(p_val)
     print("mean:"+str(e_n))
     return np.array(p_vals)
 
 
-def rejectn_rate(p_vals):
-    alpha_hats = np.arange(0,1.00001,0.00001)
+def rejectn_rate(p_vals,alpha_hats = np.arange(0,1.00001,0.00001)):    
     alphas = np.zeros(len(alpha_hats))
     for p_val in p_vals:
         alphas+=(p_val<=alpha_hats)/len(p_vals)
@@ -80,6 +47,7 @@ def get_p_vals():
     p_vals_alt1 = p_vals_lomax_renewal(theta=1,k=1/1.5+1,window=.1)
     p_vals_alt2 = p_vals_lomax_renewal(theta=2,k=2/1.5+1,window=.1)
     p_vals_alt3 = p_vals_lomax_renewal(theta=3,k=3,window=.1)
+    plot_pvals(p_vals_nul, p_vals_alt1,p_vals_alt2,p_vals_alt3)
 
 
 def plot_pvals(p_vals_nul, p_vals_alt1,p_vals_alt2,p_vals_alt3):
@@ -103,29 +71,6 @@ def plot_power(p_vals_nul, p_vals_alt1,p_vals_alt2,p_vals_alt3):
     plt.plot([0, 1], [0, 1], 'k-', lw=2)
     plt.legend()
     plt.show()
-
-
-########################################
-## Functional tests
-
-def tst_critical_interv():
-    ##### For critical interval.
-    res = critical_interval([1,2,3],1,4)
-    print(res==3)
-    res = critical_interval([1,3],-5,4)
-    print(res==3)
-    res = critical_interval([1,3],-5,4)
-    print(res==3)
-    res = critical_interval([1,3],1,4)
-
-def tst_critical_evnts():
-    ##### For critical events.
-    res = critical_events([1,2,3],[.5,1.5,2.5],.5)
-    print(res==0)
-    res = critical_events([1,2,3],[.5,1.5,2.5],1)
-    print(res==2)
-    res = critical_events([1,2,3],[.5,1.5,2.5],-1)
-    print(res==3)
 
 
 ## Some tests on correlated point processes
