@@ -3,6 +3,50 @@ from scipy.stats import lomax, binom_test
 import matplotlib.pyplot as plt
 import hypothtst.tst.correlation.pt_processes as ppr
 
+
+
+def critical_interval(ts1,w,delt):
+    t_end_prev=0
+    critical=0
+    for t1 in ts1:
+        t_start=min(t1,t1+w)
+        t_start=max(t_start,0)
+        t_end=max(t1,t1+w)
+        t_end=min(t_end,delt)
+        t_start=max(t_start,t_end_prev)
+        critical+=(t_end-t_start)
+        t_end_prev=t_end
+    return critical
+
+
+def critical_events(ts1,ts2,w):
+    """
+    ts2 rains down upon ts1.
+    """
+    if len(ts1)==0 or len(ts2)==0:
+        return 0
+    j=0; critical=0
+    for t in ts2:
+        #First time an entry in ts1 crosses
+        #current entry of ts2
+        # ts1[j-1].....t......ts1[j]
+        while j<len(ts1) and t>ts1[j]:
+            j+=1
+        if w>0 and j>0:
+            critical+=(ts1[j-1]+w>t)
+        elif j<len(ts1) and w<0:
+            critical+=(ts1[j]+w<t)
+    return critical
+
+
+def correlation_score(ts1,ts2,w,delt,verbose=False):
+    interv = critical_interval(ts1,w,delt)
+    evnts = critical_events(ts1,ts2,w)
+    if verbose:
+        print(str(evnts)+","+str(len(ts2))+","+str(interv/delt))
+    return binom_test(evnts,len(ts2),interv/delt,alternative='greater')
+
+
 def p_vals_lomax_renewal(theta=10.0,k=2,n_sim=3000,null=False,\
                     window=4,intr_strt=400,intr_end=500,
                     verbose=False):
