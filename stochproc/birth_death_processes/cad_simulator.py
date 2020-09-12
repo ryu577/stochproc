@@ -41,7 +41,7 @@ def birth_death_gen(lmb=1.0,mu=2.0,t=10000):
         states.append(state)
         cum_t += t1
         up=not up
-        ends.append(cum_t)
+        ends.append(min(cum_t,t))
     dat = pd.DataFrame({"durtn":ts,"state":states,"start":starts,"end":ends})
     return dat
 

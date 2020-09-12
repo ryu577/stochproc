@@ -36,7 +36,8 @@ def lomax_renewal_stats(theta=10,k=2,n_sim=3000,null=False,\
     v_n2=s_n2_sq/n_sim-(s_n2/n_sim)**2
     corln = cov/np.sqrt(v_n1*v_n2)
     print(corln)
-    plt.plot(np.array([0,100,200,300,400]),np.array([e_n1,e_n2,e_n3,e_n4,e_n5]))
+    plt.plot(np.array([0,100,200,300,400]),\
+            np.array([e_n1,e_n2,e_n3,e_n4,e_n5]))
     plt.show()
 
 
