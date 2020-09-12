@@ -7,7 +7,7 @@ def birth_death_availability():
     nsim=10000
     lmb=10.0
     mu=2.0
-    t=1000    
+    t=1000
     for _ in range(nsim):
         up=True
         cum_t=0
