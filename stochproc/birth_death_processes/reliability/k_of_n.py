@@ -9,13 +9,15 @@ from algorith.arrays.birth_death.cad_as_violations import complete_intervals, sy
 def k_of_n_av(k,n,p):
     return binom.sf(k-1,n,p)
 
+
 def k_of_n_rate(k=2,n=3,lmb=2,mu=6):
     p=mu/(lmb+mu)
     return n*lmb*p*binom.pmf(k-1,n-1,p)/binom.sf(k-1,n,p)
 
+
 def k_of_n_sim(k=2,n=3,lmb=2,mu=6):
     nodes = []
-    for i in range(n):
+    for _ in range(n):
         node1 = birth_death_gen(lmb,mu,1e4)
         node1 = node1[(node1.start>7e3) & (node1.state=="down")]
         nodes.append(node1)
@@ -31,6 +33,8 @@ def k_of_n_sim(k=2,n=3,lmb=2,mu=6):
     av = up_time/3000
     return av, rate
 
+########################################
+#### Some simple cases.
 
 def tst_av_2_of_3():
     """
@@ -71,4 +75,21 @@ def tst_av_2_of_3():
     rate = k_of_n_rate(2,3,lmb,mu)
     print("Closed form availability: "+ str(av))
     print("Closed form rate: " + str(rate))
+
+def tst_2_of_2():
+    node1 = birth_death_gen(1,2,1e4)
+    node1 = node1[(node1.start>7e3) & (node1.state=="down")]
+    node2 = birth_death_gen(1,2,1e4)
+    node2 = node2[(node2.start>7e3) & (node2.state=="down")]
+    dat = pd.concat([node1,node2])
+    dat = dat.sort_values(by=['start'])
+
+    res=complete_intervals(dat)
+    downs = interrupts(res.down,1)
+    down_durtns = (res.end-res.start)[res.down>=1]
+    down_durtn = sum(down_durtns)
+    lmb = downs/(3000-down_durtn)
+    mu = downs/down_durtn
+    print(lmb)
+    print(mu)
 
