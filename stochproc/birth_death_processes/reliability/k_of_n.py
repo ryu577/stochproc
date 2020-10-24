@@ -9,11 +9,16 @@ from algorith.arrays.birth_death.cad_as_violations import complete_intervals, sy
 def k_of_n_av(k,n,p):
     return binom.sf(k-1,n,p)
 
-
 def k_of_n_rate(k=2,n=3,lmb=2,mu=6):
     p=mu/(lmb+mu)
     return n*lmb*p*binom.pmf(k-1,n-1,p)/binom.sf(k-1,n,p)
 
+## Doesn't seem to work for 1 of 2 system.
+def k_of_n_repair_rate(k=2,n=3,lmb=2,mu=6):
+    ## Per equation 9.33 of Ross
+    p=mu/(lmb+mu)
+    av=k_of_n_av(k,n,p)
+    return (1-av)*k_of_n_rate(k,n,lmb,mu)/av
 
 def k_of_n_sim(k=2,n=3,lmb=2,mu=6):
     nodes = []

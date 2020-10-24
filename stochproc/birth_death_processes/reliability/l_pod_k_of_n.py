@@ -21,7 +21,7 @@ def l_pod_k_of_n_av(l,n,k,p,q,pod_less_mcs=0):
     ceil=np.ceil(n/l)
     flr=ceil-1
     ## Num of hero and joe pods.
-    # A hero pod has one more machine 
+    # A hero pod has one more machine
     # than a joe pod.
     h=int(n-l*flr)
     j=int(l*ceil-n)
@@ -96,9 +96,6 @@ def l_pod_k_of_n_rate(l,n,k,lmb_mc,mu_mc,lmb_pod,mu_pod):
     denom = l_pod_k_of_n_av(l,n,k,p,q)
     return numr/denom
 
-#hero_mc_up = q*l_pod_k_of_n_av(l-1,n-1,k-1,p,q) \
-#                + (1-q)*l_pod_k_of_n_av(l-1,n-1,k,p,q)
-#hero_mc_down = l_pod_k_of_n_av(l-1,n-1,k,p,q)
 
 def l_pod_k_of_n_av_legacy(n=7, l=3, k=4):
     """
@@ -106,7 +103,8 @@ def l_pod_k_of_n_av_legacy(n=7, l=3, k=4):
     """
     p_n=0.9; p_r=0.9
     h,j,alpha,beta=striping(l,n)
-    machines_per_pod = np.array([(alpha if i<h else beta) for i in range(int(h+j))])
+    machines_per_pod = np.array([(alpha if i<h else beta) \
+                            for i in range(int(h+j))])
     arr = GenBase(machines_per_pod)
     tot = int(np.prod(arr.bases+1))
     prob = 0.0
@@ -260,3 +258,13 @@ def tst():
     l_pod_k_of_n_rate(3,8,4,.00001,2,1,2)
     k_of_n_rate(2,3,1,2)
 
+
+def tst2():
+    summ=0
+    for _ in range(100):
+        summ+=l_pod_k_of_n_sim(4,8,5,1,2,1,2,durtn=9e3,sim_durtn=1e4)[1]
+
+    print(summ/100)
+
+    real_rate=l_pod_k_of_n_rate(4,8,5,1,2,1,2)
+    print(real_rate)
