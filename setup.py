@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages, Extension
 
 setup(name='stochproc',
-      version='0.0.4',
+      version='0.0.6',
       url='https://github.com/ryu577/stochproc',
       license='MIT',
       author='Rohit Pandey',
