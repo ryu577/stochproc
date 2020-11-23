@@ -37,7 +37,6 @@ def tst_sim_renewal_process():
 def tst_sim_2():
     k=0.8
     lmb=2.0
-
     s_n1n2=0; s_n1=0; s_n2=0; s_n1_sq=0; s_n2_sq=0
     n_sim=5000
     for _ in range(n_sim):
