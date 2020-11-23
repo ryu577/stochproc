@@ -11,7 +11,9 @@ from algorith.heap.heap import Heap
 n=8
 sh_durtn = 30
 sh_air=7
+# Mean time between failures for reboots due to service healing.
 mtbf = 365*1440*100/sh_air
+# Do we have a one node buffer or not.
 no_buffer=False
 
 tech_arrival = np.inf; prev_tech_arrival=0
@@ -30,18 +32,22 @@ while curr_t < mtbf*100:
         downs+=1; to_repair.push(t)
         curr_t=t
         if downs==1:
-            tech_arrival=min(tech_arrival,t+1*1400)
+            # One node goes down, tech is scheduled to arrive in 14 days.
+            tech_arrival=min(tech_arrival,t+14*1400)
         elif downs==2:
+            # If two nodes fail, tech arrival is updated to one day from now.
             tech_arrival=min(tech_arrival,t+1*1440)
     curr_t=tech_arrival
     for _ in range(downs):
         down_heap.push(curr_t+np.random.exponential(mtbf))
     tot_inter = n*curr_t
     if no_buffer:
+        #If we have one node in the buffer, the first failure will be service healable.
         down_inter+=sh_durtn
         # First time stamp would have been service healed,
         # which is already accounted for. So pop it.
         to_repair.pop()
+    # For the remaining failures, nodes have been down since the times in the heap.
     while len(to_repair.h_arr)>0:
         t1 = to_repair.pop()
         down_inter+=(curr_t-t1)        
