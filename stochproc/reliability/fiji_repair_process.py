@@ -26,6 +26,7 @@ to_repair=Heap()
 curr_t=0; downs=0
 down_inter=0; up_inter=0; tot_inter=0
 
+## Simulate until some large time.
 while curr_t < mtbf*100:
     while down_heap.peek()<tech_arrival:
         t=down_heap.pop()
