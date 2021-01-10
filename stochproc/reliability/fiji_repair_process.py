@@ -7,7 +7,7 @@ from algorith.heap.heap import Heap
 ## The number of machines in the site.
 n=20
 sh_durtn = 80
-sh_air=50
+sh_air=3
 mtbf = 365*1440*100/sh_air
 
 tech_arrival = np.inf; prev_tech_arrival=0
@@ -20,7 +20,7 @@ to_repair=Heap()
 curr_t=0; downs=0
 down_inter=0; up_inter=0; tot_inter=0
 
-while curr_t < mtbf*50:
+while curr_t < mtbf*200:
     while down_heap.peek()<tech_arrival:
         t=down_heap.pop()
         downs+=1; to_repair.push(t)
@@ -32,7 +32,7 @@ while curr_t < mtbf*50:
     curr_t=tech_arrival
     for _ in range(downs):
         down_heap.push(curr_t+np.random.exponential(mtbf))
-    tot_inter += n*curr_t
+    tot_inter = n*curr_t
     down_inter+=sh_durtn
     # First time stamp would have been service healed,
     # which is already accounted for. So pop it.
