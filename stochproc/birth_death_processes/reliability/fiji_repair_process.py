@@ -79,5 +79,6 @@ if __name__=="__main__":
     n=8
     sh_durtn = 30
     sh_air=7
-    fiji_repair_availability(5,30,sh_air=4,sim_epochs=5000)
+    av=fiji_repair_availability(8,30,sh_air=4,sim_epochs=5000)
+    print(av)
 
