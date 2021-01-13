@@ -75,6 +75,54 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
     return 1-down_inter/tot_inter
 
 
+def fiji_longdown_rate():
+    period = 1000000; n_sim=1000
+    s_evnts=0
+    for i in range(n_sim):
+        trntns = []
+        tech_arrival = np.inf
+        num_dwn = 0
+        t=0
+        evnts = 0
+        theta = 0.05
+        lm = np.random.gamma(5*theta,1/theta)*7/36500
+        #lm = 5/(36500/7)
+        while t<period:        
+            t_del = np.random.exponential(1/lm)
+            t+=t_del
+            if t > tech_arrival:
+                trntns.append([tech_arrival,0])
+                trntns.append([t,1])
+                num_dwn=1
+                tech_arrival=t+14
+            else:
+                num_dwn+=1
+                if num_dwn>=2:
+                    tech_arrival = min(tech_arrival,t+1)
+                    evnts+=1          
+                trntns.append([t,num_dwn])
+        s_evnts+=evnts
+
+    evnts_per_t_days = s_evnts/n_sim
+    evnts_per_cent = evnts_per_t_days*36500/period
+    print(evnts_per_cent)
+    print(len(trntns))
+
+
+def tst_neg_binom():
+    period=1000
+    evnts = 0
+    t=0
+    while t<period:
+        theta = 0.5
+        lm = np.random.gamma(5*theta,1/theta)
+        #lm = 5
+        t_del = np.random.exponential(1/lm)
+        t+=t_del
+        evnts+=1
+    print(evnts)
+
+
 if __name__=="__main__":
     n=8
     sh_durtn = 30
