@@ -13,7 +13,6 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
 
     azure_sh_av = mtbf/(mtbf+sh_durtn)
     print("Availability contribution in Azure due to SH: " + str(azure_sh_av))
-    
     tech_arrival = np.inf; prev_tech_arrival=0
     down_heap = Heap()
     for _ in range(n):
@@ -75,7 +74,7 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
     return 1-down_inter/tot_inter
 
 
-def fiji_longdown_rate():
+def fiji_longdown_rate(theta = 0.2,days=14):
     period = 1000000; n_sim=1000
     s_evnts=0
     for i in range(n_sim):
@@ -84,7 +83,6 @@ def fiji_longdown_rate():
         num_dwn = 0
         t=0
         evnts = 0
-        theta = 0.05
         lm = np.random.gamma(5*theta,1/theta)*7/36500
         #lm = 5/(36500/7)
         while t<period:        
@@ -94,7 +92,7 @@ def fiji_longdown_rate():
                 trntns.append([tech_arrival,0])
                 trntns.append([t,1])
                 num_dwn=1
-                tech_arrival=t+14
+                tech_arrival=t+days
             else:
                 num_dwn+=1
                 if num_dwn>=2:
