@@ -125,7 +125,7 @@ def l_pod_k_of_n_av_legacy(n=7, l=3, k=4):
 
 def striping(l=3, n=7):
     """
-    Given the number of PF-rows and replicas, uniformly 
+    Given the number of PF-rows and replicas, uniformly
     distributes the PF-rows among the replicas. With a uniform
     striping, we will have two kinds of rows, one kind having
     one more replica than the other kind. This method returns
@@ -136,18 +136,50 @@ def striping(l=3, n=7):
     beta = alpha-1
     h = n-l*(alpha-1)
     j = l*alpha-n
-    return (h,j,alpha,beta)
+    return (h, j, alpha, beta)
+
+
+class LPodKOfN():
+    def __init__(self, k, n, l, mc_rates, pod_rates):
+        self.k = k
+        self.n = n
+        self.l = l
+        self.lmb_mc, self.mu_mc = mc_rates
+        self. lmb_pod, self.mu_pod = pod_rates
+
+    def sim(self, durtn):
+        sim_durtn = durtn
+        ceil = np.ceil(self.n/self.l)
+        flr = ceil-1
+        h = int(self.n - self.l * flr)
+        j = int(self.l*ceil - self.n)
+        nodes = []
+        for _ in range(h):
+            pod_nodes = sim_one_pod(ceil, self.lmb_mc, self.mu_mc,
+                                    self.lmb_pod, self.mu_pod,
+                                    durtn, sim_durtn)
+            nodes.append(pod_nodes)
+        for _ in range(j):
+            pod_nodes = sim_one_pod(flr, self.lmb_mc, self.mu_mc,
+                                    self.lmb_pod, self.mu_pod,
+                                    durtn, sim_durtn)
+            nodes.append(pod_nodes)
+        dat = pd.concat(nodes)
+        dat = dat.sort_values(by=['start'])
+        ds, ts = num_down_w_times_v1(np.array(dat.start),
+                                     np.array(dat.end), np.array(dat.down))
+        self.res_df = pd.DataFrame({'start': ts[:len(ts)-1], 'end': ts[1:], 'down': ds})
 
 
 ####################################
-## Unverified
-### TODO: Verify this works.
-def l_pod_k_of_n_sim(l,n,k,lmb_mc,mu_mc,lmb_pod,mu_pod,
-                    durtn=9000,sim_durtn=1e4):
-    ceil=np.ceil(n/l)
-    flr=ceil-1
-    h=int(n-l*flr)
-    j=int(l*ceil-n)
+# Unverified
+# TODO: Verify this works.
+def l_pod_k_of_n_sim(l, n, k, lmb_mc, mu_mc, lmb_pod, mu_pod,
+                     durtn=9000, sim_durtn=1e4):
+    ceil = np.ceil(n/l)
+    flr = ceil-1
+    h = int(n-l*flr)
+    j = int(l*ceil-n)
     nodes = []
     for _ in range(h):
         pod_nodes = sim_one_pod(ceil,lmb_mc,mu_mc,lmb_pod,mu_pod,
@@ -159,9 +191,9 @@ def l_pod_k_of_n_sim(l,n,k,lmb_mc,mu_mc,lmb_pod,mu_pod,
         nodes.append(pod_nodes)
     dat = pd.concat(nodes)
     dat = dat.sort_values(by=['start'])
-    ds,ts=num_down_w_times_v1(np.array(dat.start),\
-                    np.array(dat.end),np.array(dat.down))
-    res_df=pd.DataFrame({'start':ts[:len(ts)-1],'end':ts[1:],'down':ds})
+    ds, ts = num_down_w_times_v1(np.array(dat.start),
+                                 np.array(dat.end), np.array(dat.down))
+    res_df = pd.DataFrame({'start': ts[:len(ts)-1], 'end': ts[1:], 'down': ds})
     durtns = res_df.end-res_df.start
     res_df = res_df[durtns>0]
     downs = res_df[res_df.down>=n-k+1]
@@ -173,43 +205,44 @@ def l_pod_k_of_n_sim(l,n,k,lmb_mc,mu_mc,lmb_pod,mu_pod,
     return av, air
 
 
-def sim_one_pod(machines,lmb_mc,mu_mc,lmb_pod,mu_pod,
-                durtn=9000,sim_durtn=1e4):
-    if durtn>sim_durtn:
+def sim_one_pod(machines, lmb_mc, mu_mc, lmb_pod, mu_pod,
+                durtn=9000, sim_durtn=1e4):
+    if durtn > sim_durtn:
         print("taking entire duration")
         durtn = sim_durtn
     nodes = []
     cut_pt = sim_durtn-durtn
     for _ in range(int(machines)):
-        node1=birth_death_gen(lmb_mc,mu_mc,sim_durtn)
-        node1 = node1[(node1.start>cut_pt) & (node1.state=="down")]
+        node1 = birth_death_gen(lmb_mc, mu_mc, sim_durtn)
+        node1 = node1[(node1.start > cut_pt) & (node1.state == "down")]
         nodes.append(node1)
     dat = pd.concat(nodes)
     dat = dat.sort_values(by=['start'])
-    dat1 = complete_intervals(dat)[['start','end','down']]
-    ##Now simulate the pod..
-    pod1=birth_death_gen(lmb_pod,mu_pod,sim_durtn)
-    pod1 = pod1[(pod1.start>cut_pt) & (pod1.state=="down")]
+    dat1 = complete_intervals(dat)[['start', 'end', 'down']]
+    # Now simulate the pod..
+    pod1 = birth_death_gen(lmb_pod, mu_pod, sim_durtn)
+    pod1 = pod1[(pod1.start > cut_pt) & (pod1.state == "down")]
     pod1["down"] = machines
-    pod1=pod1[['start','end','down']]
-    pod_dat = pd.concat([dat1,pod1])
-    pod_dat=pod_dat.sort_values(by=['start'])
-    ds,ts=num_down_w_times_v1(np.array(pod_dat.start),\
-            np.array(pod_dat.end),np.array(pod_dat.down))
-    ds[ds>machines]=machines
+    pod1 = pod1[['start', 'end', 'down']]
+    pod_dat = pd.concat([dat1, pod1])
+    pod_dat=pod_dat.sort_values(by = ['start'])
+    ds, ts = num_down_w_times_v1(np.array(pod_dat.start),
+                              np.array(pod_dat.end),
+                              np.array(pod_dat.down))
+    ds[ds>machines] = machines
     res_df=pd.DataFrame({'start':ts[:len(ts)-1],'end':ts[1:],'down':ds})
     durtns = res_df.end-res_df.start
     res_df = res_df[durtns>0]
     return res_df
 
 
-def interrupts(downs,k):
+def interrupts(downs, k):
     prev_dwn = 0
-    interrupts=0
+    interrupts = 0
     for dwn in np.array(downs):
-        if prev_dwn<k and dwn>=k:
-            interrupts+=1
-        prev_dwn=dwn
+        if prev_dwn < k and dwn >= k:
+            interrupts += 1
+        prev_dwn = dwn
     return interrupts
 
 
