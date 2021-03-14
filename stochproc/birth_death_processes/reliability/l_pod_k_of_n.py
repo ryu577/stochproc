@@ -168,7 +168,8 @@ class LPodKOfN():
         dat = dat.sort_values(by=['start'])
         ds, ts = num_down_w_times_v1(np.array(dat.start),
                                      np.array(dat.end), np.array(dat.down))
-        self.res_df = pd.DataFrame({'start': ts[:len(ts)-1], 'end': ts[1:], 'down': ds})
+        self.res_df = pd.DataFrame({'start': ts[:len(ts)-1], 'end': ts[1:],
+                                    'down': ds})
 
 
 ####################################
@@ -247,14 +248,13 @@ def interrupts(downs, k):
 
 
 def tst():
-    av_sim=l_pod_k_of_n_sim(1,3,2,1,2,1,2)
-    av_real=l_pod_k_of_n_av(1,3,2,0.66666,0.666666)
+    av_sim = l_pod_k_of_n_sim(1,3,2,1,2,1,2)
+    av_real = l_pod_k_of_n_av(1,3,2,0.66666,0.666666)
 
     ### with one pod that's almost always available, we get a k-of-n system.
     ## Note that the rate does not depend on mu of pods (last argument).
     l_pod_k_of_n_rate(1,3,2,1,2,.01,1)
     k_of_n_rate(2,3,1,2)
-
 
     l=3;n=3;k=2;p=2/(1+2);q=2/(1+2)
     diff = (l_pod_k_of_n_sim(3,3,2,1,2,1,2)[0] -l_pod_k_of_n_av(l,n,k,p,q))\

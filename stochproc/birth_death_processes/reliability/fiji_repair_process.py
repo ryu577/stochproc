@@ -1,5 +1,5 @@
 import numpy as np
-from algorith.heap.heap import Heap
+from algorith.data_structs.heap.heap import Heap
 
 
 ### Inputs to the program.
