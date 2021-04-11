@@ -1,12 +1,13 @@
 import numpy as np
-from algorith.heap.heap import Heap
-
+from algorith.data_structs.heap.heap import Heap
+from stochproc.birth_death_processes.reliability.series_parallel import series
 
 ### Inputs to the program.
 ## The number of machines in the site.
 
 
-def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100):
+def fiji_repair_availability(n=8, sh_durtn=30, sh_air=7, buffer=True,
+                             sim_epochs=100, repair_sla_days=1):
     # Mean time between failures for reboots due to service healing.
     mtbf = 365*1440*100/sh_air
     # Do we have a one node buffer or not.
@@ -23,7 +24,7 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
     curr_t=0; downs=0
     down_inter=0; up_inter=0; tot_inter=0
 
-    ## Simulate until some large time.
+    # Simulate until some large time.
     while curr_t < mtbf*sim_epochs:
         while down_heap.peek()<tech_arrival:
             t=down_heap.pop()
@@ -31,10 +32,10 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
             curr_t=t
             if downs==1:
                 # One node goes down, tech is scheduled to arrive in 14 days.
-                tech_arrival=min(tech_arrival,t+14*1400)
+                tech_arrival=min(tech_arrival, t+14*1400)
             elif downs==2:
                 # If two nodes fail, tech arrival is updated to one day from now.
-                tech_arrival=min(tech_arrival,t+1*1440)
+                tech_arrival=min(tech_arrival, t+repair_sla_days*1440)
         curr_t=tech_arrival
         for _ in range(downs):
             down_heap.push(curr_t+np.random.exponential(mtbf))
@@ -52,7 +53,7 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
             # First time stamp would have been service healed,
             # which is already accounted for. So pop it.
             to_repair.pop()
-        # For the remaining failures, nodes have 
+        # For the remaining failures, nodes have
         # been down since the times in the heap.
         while len(to_repair.h_arr)>0:
             t1 = to_repair.pop()
@@ -72,6 +73,28 @@ def fiji_repair_availability(n=8,sh_durtn=30,sh_air=7,buffer=True,sim_epochs=100
         tech_arrival=np.inf
         downs=0
     return 1-down_inter/tot_inter
+
+
+def overall_metrics(sla_days=1):
+    """
+    What impact does SLA for SH policy have on overall availability?
+    """
+    lmb_sh = 4.22
+    a_sh = fiji_repair_availability(sh_air=lmb_sh,
+                                    sim_epochs=5000, n=5,
+                                    repair_sla_days=
+                                    sla_days)
+    a_sh_1day = fiji_repair_availability(sh_air=lmb_sh,
+                                    sim_epochs=5000, n=5,
+                                    repair_sla_days=1)
+    mu_sh = lmb_sh*a_sh/(1-a_sh)
+    a_t = 0.9997831556492641
+    lmb_t = 39.54458631633028
+    a_nosh = a_t/a_sh_1day
+    lmb_nosh = lmb_t - lmb_sh
+    mu_nosh = lmb_nosh*a_nosh/(1-a_nosh)
+    lmb_new, mu_new, a_new = series(np.array([lmb_nosh, lmb_sh]), np.array([mu_nosh, mu_sh]))
+    return lmb_new, mu_new, a_new, 36500*1440/mu_sh
 
 
 def fiji_longdown_rate(theta = 0.2,days=14):
