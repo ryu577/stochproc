@@ -97,32 +97,33 @@ def overall_metrics(sla_days=1):
     return lmb_new, mu_new, a_new, 36500*1440/mu_sh
 
 
-def fiji_longdown_rate(theta = 0.2,days=14):
-    period = 1000000; n_sim=1000
-    s_evnts=0
+def fiji_longdown_rate(theta=0.2, days=14):
+    period = 1000000
+    n_sim = 1000
+    s_evnts = 0
     for i in range(n_sim):
         trntns = []
         tech_arrival = np.inf
         num_dwn = 0
-        t=0
+        t = 0
         evnts = 0
-        lm = np.random.gamma(5*theta,1/theta)*7/36500
-        #lm = 5/(36500/7)
-        while t<period:        
+        lm = np.random.gamma(1.4*theta, 1/theta)*7/36500
+        # lm = 5/(36500/7)
+        while t < period:
             t_del = np.random.exponential(1/lm)
-            t+=t_del
+            t += t_del
             if t > tech_arrival:
-                trntns.append([tech_arrival,0])
-                trntns.append([t,1])
-                num_dwn=1
-                tech_arrival=t+days
+                trntns.append([tech_arrival, 0])
+                trntns.append([t, 1])
+                num_dwn = 1
+                tech_arrival = t + days
             else:
-                num_dwn+=1
-                if num_dwn>=2:
-                    tech_arrival = min(tech_arrival,t+1)
-                    evnts+=1          
-                trntns.append([t,num_dwn])
-        s_evnts+=evnts
+                num_dwn += 1
+                if num_dwn >= 2:
+                    tech_arrival = min(tech_arrival, t+1)
+                    evnts += 1
+                trntns.append([t, num_dwn])
+        s_evnts += evnts
 
     evnts_per_t_days = s_evnts/n_sim
     evnts_per_cent = evnts_per_t_days*36500/period
@@ -150,4 +151,3 @@ if __name__=="__main__":
     sh_air=7
     av=fiji_repair_availability(8,30,sh_air=4,sim_epochs=5000)
     print(av)
-
