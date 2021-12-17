@@ -17,13 +17,14 @@ def estimate_median(x, is_sorted=False):
 
 
 def plot_bias():
-    for sampl in np.arange(35, 220, 5):
+    for sampl in np.arange(10, 45, 5):
         errs = []
         ests = []
         real_val = lognorm.ppf(0.5, 1, 0)
         for _ in range(100000):
             x = lognorm.rvs(1, 0, size=sampl)
-            est_val = estimate_median(x)
+            #est_val = estimate_median(x)
+            est_val = np.median(x)
             err = (real_val-est_val)/real_val
             errs.append(err)
             ests.append(est_val)
@@ -35,6 +36,9 @@ def plot_bias():
         plt.axvline(np.mean(ests),
                     label="avg estimated value of median on sample size: "
                     + str(sampl), color="purple")
+        plt.axvline(np.median(ests),
+                    label="median estimated value of median on sample size: "
+                    + str(sampl), color="orange")
         plt.legend()
         plt.title("Sample size = " + str(sampl))
         plt.savefig('plots/sample_' + str(sampl) + '.png')
