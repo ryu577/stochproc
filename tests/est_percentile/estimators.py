@@ -25,7 +25,7 @@ def rvs_fn3(n):
     return np.random.exponential(size=n)
 
 def rvs_fn4(n):
-    return lomax.rvs(c=3,size=n)
+    return lomax.rvs(c=.9,size=n)
 
 def rvs_fn5(n):
     return weibull_min.rvs(c=.5,size=n)
@@ -40,7 +40,7 @@ def ppf_fn3(q):
     return expon.ppf(q)
 
 def ppf_fn4(q):
-    return lomax.ppf(q,c=4)
+    return lomax.ppf(q,c=.9)
 
 def ppf_fn5(q):
     return weibull_min.ppf(q,c=.5)
@@ -56,87 +56,103 @@ def expon_frac(q, n):
     return (-np.log(1-q)-summ)*(n-lt-1)
 
 
-def coeff_variation_and_bias(n=100, rvs_fn=rvs_fn2, ppf_fn=ppf_fn2):
-    u_errs = []
-    u_errs1 = []
-    u_stds = []
-    u_stds1 = []
-    u_coff_vars = []
-    u_medians = []
-    u_medians1 = []
+#def coeff_variation_and_bias(n=100, rvs_fn=rvs_fn2, ppf_fn=ppf_fn2):
+n=25; rvs_fn=rvs_fn4; ppf_fn=ppf_fn4
+u_errs = []
+u_errs1 = []
+u_stds = []
+u_stds1 = []
+u_coff_vars = []
+u_medians = []
+u_medians1 = []
+u_mses = []
+u_mses1 = []
 
-    for q in np.arange(0.05, 1, 0.05):
-        errs = []
-        errs1 = []
-        ests = []
-        ests1 = []
-        for _ in range(10000):
-            x = rvs_fn(n)
-            real_val = ppf_fn(q)
-            est_val = np.percentile(x, q*100)
-            est_val1 = prcntl(x, q, 2)
-            err = (real_val-est_val)
-            err1 = (real_val-est_val1)
-            errs.append(err)
-            errs1.append(err1)
-            ests.append(est_val)
-            ests1.append(est_val1)
+qs = np.arange(0.1, .94, 0.03)
 
-        print(np.mean(errs))
-        u_errs.append(np.mean(errs))
-        u_errs1.append(np.mean(errs1))
-        u_stds.append(np.std(ests))
-        u_stds1.append(np.std(ests1))
-        u_medians.append(np.median(errs))
-        u_medians1.append(np.median(errs1))
-
-        u_coff_vars.append(np.std(ests)/np.mean(ests))
-        #plt.hist(errs)
-        #plt.show()
-
-    qs = np.arange(0.05, 1, 0.05)
-    plt.plot(qs, u_errs, label="Average bias")
-    plt.plot(qs, u_errs1, label="Average bias 1")
-    plt.plot(qs, u_stds, label="standard deviation")
-    plt.plot(qs, u_stds1, label="standard deviation 1")
-    plt.plot(qs, u_medians, label="Median bias")
-    plt.plot(qs, u_medians1, label="Median bias 1")
-    plt.axhline(0, color="black")
-    plt.axvline(0.5, color="black")
-    plt.legend()
-    plt.xlabel("Percentile")
-    plt.show()
-
-
-##################
-import os
-
-basedir = '.\\plots\\sample_\\'
-if os.name == 'posix':
-    basedir = 'plots/sample_'
-
-
-for sampl in np.arange(35, 220, 5):
-    q = 0.9
+for q in qs:
     errs = []
+    errs1 = []
     ests = []
-    real_val = ppf_fn2(q)
-    for _ in range(100000):
-        x = rvs_fn2(sampl)
+    ests1 = []
+    for _ in range(30000):
+        x = rvs_fn(n)
+        real_val = ppf_fn(q)
         est_val = np.percentile(x, q*100)
-        err = (real_val-est_val)/real_val
+        est_val1 = prcntl(x, q, 2)
+        err = (real_val-est_val)
+        err1 = (real_val-est_val1)
         errs.append(err)
+        errs1.append(err1)
         ests.append(est_val)
+        ests1.append(est_val1)
 
     print(np.mean(errs))
+    u_errs.append(np.mean(errs))
+    u_errs1.append(np.mean(errs1))
+    u_stds.append(np.std(ests))
+    u_stds1.append(np.std(ests1))
+    u_medians.append(np.median(errs))
+    u_medians1.append(np.median(errs1))
 
-    plt.hist(ests, bins=np.arange(0,14,1))
-    plt.axvline(real_val, label="actual", color="yellow")
-    plt.axvline(np.mean(ests), label="average", color="green")
-    plt.axvline(np.percentile(ests, 100-q*100), label="percentile of estimates", color="orange")
-    plt.axvline(np.percentile(ests, .5*100), label="median of estimates", color="purple")
-    plt.legend()
-    plt.savefig('plots/sample_' + str(sampl) + '.png')
-    plt.close()
-    print('processed sample size ' + str(sampl))
+    u_coff_vars.append(np.std(ests)/np.mean(ests))
+    u_mses.append(np.sqrt(np.var(ests)+np.mean(errs)**2))
+    u_mses1.append(np.sqrt(np.var(ests1)+np.mean(errs1)**2))
+
+
+plt.style.use('dark_background')
+#plt.ylim()
+plt.axhline(0, color="white")
+plt.axvline(0.5, color="white")
+plt.plot(qs, u_errs, label="Bias for linear interpolation strategy")
+plt.plot(qs, u_errs1, label="Bias for low bias strategy")
+plt.plot(qs, u_stds, label="Standard deviation for linear interpolation strategy")
+plt.plot(qs, u_stds1, label="Standard deviation for low bias strategy")
+plt.plot(qs, u_medians, label="DelMedian for linear interpolation strategy")
+plt.plot(qs, u_medians1, label="DelMedian for low bias strategy")
+plt.plot(qs, u_mses, label="MSE for linear interpolation strategy")
+plt.plot(qs, u_mses1, label="MSE for low bias strategy")
+plt.legend()
+plt.xlabel("Percentile (q)")
+plt.show()
+
+
+
+# Alternate plotting.
+#fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
+fig1, (ax1, ax3) = plt.subplots(2, 1)
+fig2, (ax2, ax4) = plt.subplots(2, 1)
+
+
+ax1.axhline(0, color="white")
+ax1.axvline(0.5, color="white")
+ax2.axhline(0, color="white")
+ax2.axvline(0.5, color="white")
+ax1.plot(qs, u_errs, label="Bias for linear interpolation strategy")
+ax1.plot(qs, u_errs1, label="Bias for low bias strategy")
+ax1.legend(prop={'size': 20})
+ax2.plot(qs, u_stds, label="Standard deviation for linear interpolation strategy")
+ax2.plot(qs, u_stds1, label="Standard deviation for low bias strategy")
+ax2.legend(prop={'size': 20})
+ax3.plot(qs, u_medians, label="DelMedian for linear interpolation strategy")
+ax3.plot(qs, u_medians1, label="DelMedian for low bias strategy")
+ax3.axhline(0, color="white")
+ax3.axvline(0.5, color="white")
+ax3.legend(prop={'size': 20})
+ax4.plot(qs, u_mses, label="MSE for linear interpolation strategy")
+ax4.plot(qs, u_mses1, label="MSE for low bias strategy")
+ax4.axhline(0, color="white")
+ax4.axvline(0.5, color="white")
+ax4.legend(prop={'size': 20})
+plt.xlabel("Percentile (q)")
+ax2.tick_params(axis='x', labelsize=15)
+ax4.tick_params(axis='x', labelsize=15)
+ax1.tick_params(axis='x', labelsize=15)
+ax3.tick_params(axis='x', labelsize=15)
+ax2.tick_params(axis='y', labelsize=15)
+ax4.tick_params(axis='y', labelsize=15)
+ax1.tick_params(axis='y', labelsize=15)
+ax3.tick_params(axis='y', labelsize=15)
+plt.show()
+
 
