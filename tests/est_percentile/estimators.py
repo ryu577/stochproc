@@ -57,7 +57,7 @@ def expon_frac(q, n):
 
 
 #def coeff_variation_and_bias(n=100, rvs_fn=rvs_fn2, ppf_fn=ppf_fn2):
-n=25; rvs_fn=rvs_fn4; ppf_fn=ppf_fn4
+n=15; rvs_fn=rvs_fn4; ppf_fn=ppf_fn4
 u_errs = []
 u_errs1 = []
 u_stds = []
@@ -68,7 +68,7 @@ u_medians1 = []
 u_mses = []
 u_mses1 = []
 
-qs = np.arange(0.1, .94, 0.03)
+qs = np.arange(0.3, .7, 0.03)
 
 for q in qs:
     errs = []
@@ -101,22 +101,6 @@ for q in qs:
 
 
 plt.style.use('dark_background')
-#plt.ylim()
-plt.axhline(0, color="white")
-plt.axvline(0.5, color="white")
-plt.plot(qs, u_errs, label="Bias for linear interpolation strategy")
-plt.plot(qs, u_errs1, label="Bias for low bias strategy")
-plt.plot(qs, u_stds, label="Standard deviation for linear interpolation strategy")
-plt.plot(qs, u_stds1, label="Standard deviation for low bias strategy")
-plt.plot(qs, u_medians, label="DelMedian for linear interpolation strategy")
-plt.plot(qs, u_medians1, label="DelMedian for low bias strategy")
-plt.plot(qs, u_mses, label="MSE for linear interpolation strategy")
-plt.plot(qs, u_mses1, label="MSE for low bias strategy")
-plt.legend()
-plt.xlabel("Percentile (q)")
-plt.show()
-
-
 
 # Alternate plotting.
 #fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
@@ -155,4 +139,21 @@ ax1.tick_params(axis='y', labelsize=15)
 ax3.tick_params(axis='y', labelsize=15)
 plt.show()
 
+
+
+###################################
+####
+plt.axhline(0, color="white")
+plt.axvline(0.5, color="white")
+plt.plot(qs, u_errs, label="Bias for linear interpolation strategy")
+plt.plot(qs, u_errs1, label="Bias for low bias strategy")
+plt.plot(qs, u_stds, label="Standard deviation for linear interpolation strategy")
+plt.plot(qs, u_stds1, label="Standard deviation for low bias strategy")
+plt.plot(qs, u_medians, label="DelMedian for linear interpolation strategy")
+plt.plot(qs, u_medians1, label="DelMedian for low bias strategy")
+plt.plot(qs, u_mses, label="MSE for linear interpolation strategy")
+plt.plot(qs, u_mses1, label="MSE for low bias strategy")
+plt.legend()
+plt.xlabel("Percentile (q)")
+plt.show()
 
