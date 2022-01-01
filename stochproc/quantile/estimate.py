@@ -46,7 +46,7 @@ def est_3(a, p):
     n = len(a)
     j = int(np.floor(p*n))
     g = n*p-j
-    if g==0 and j%2==0:
+    if g == 0 and j%2 == 0:
         gamma = 0
     else:
         gamma = 1
@@ -64,7 +64,7 @@ def est_4(a, p):
 
 
 def est_5(a, p):
-    m=0.5
+    m = 0.5
     a = sorted(a)
     n = len(a)
     j = int(np.floor(p*n+m))
@@ -73,7 +73,7 @@ def est_5(a, p):
 
 
 def est_6(a, p):
-    m=p
+    m = p
     a = sorted(a)
     n = len(a)
     j = int(np.floor(p*n+m))
@@ -81,12 +81,12 @@ def est_6(a, p):
     return a[j-1]*(1-gamma)+a[j]*gamma+m
 
 
-def est_7(a,p):
-    return np.percentile(a,p*100)
+def est_7(a, p):
+    return np.percentile(a, p*100)
 
 
-def est_8(a,p):
-    m=(p+1)/3
+def est_8(a, p):
+    m = (p+1)/3
     a = sorted(a)
     n = len(a)
     j = int(np.floor(p*n+m))
@@ -94,8 +94,8 @@ def est_8(a,p):
     return a[j-1]*(1-gamma)+a[j]*gamma+m
 
 
-def est_9(a,p):
-    m=p/4+3/8
+def est_9(a, p):
+    m = p/4+3/8
     a = sorted(a)
     n = len(a)
     j = int(np.floor(p*n+m))
@@ -103,6 +103,5 @@ def est_9(a,p):
     return a[j-1]*(1-gamma)+a[j]*gamma+m
 
 
-## References
+# References
 # [1] https://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html
-
