@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
+from stochproc.quantile.expon_based_estimators import expon_frac,\
+                                                      expon_fracs,\
+                                                      prcntl, prcntl2
 
 
 def prcntl_bias(q, n, interpolate=1):
@@ -19,6 +22,7 @@ def prcntl_bias(q, n, interpolate=1):
     return -np.log(1-q)-summ
 
 
+
 def prcntl_var(q, n, interpolate=1):
     lt = int(np.floor(q*(n-1)))
     summ = 0
@@ -34,13 +38,6 @@ def prcntl_var(q, n, interpolate=1):
         summ += (expon_low_mse_frac(q,n)/(n-lt-1))**2
     return summ
 
-
-def expon_frac(q, n):
-    lt = int(np.floor(q*(n-1)))
-    summ = 0
-    for ix in range(lt+1):
-        summ += 1/(n-ix)
-    return (-np.log(1-q)-summ)*(n-lt-1)
 
 
 def expon_low_mse_frac(q, n):
@@ -91,3 +88,13 @@ def analyze_bias(n=55, save_close=True):
 for n in range(15,405,25):
     analyze_bias(n)
 
+
+def proj_var(n, q, i):
+    v = 0
+    b = 0
+    for j in range(1, i+1):
+        v += 1/(n-j)**2
+        b += 1/(n-j)
+    b += np.log(1-q)
+    v += b**2/(n-i)
+    return v

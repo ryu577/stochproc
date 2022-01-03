@@ -1,5 +1,5 @@
 from stochproc.quantile.estimate import *
-from stochproc.quantile.expon_based_estimators import expon_frac, prcntl
+from stochproc.quantile.expon_based_estimators import prcntl, prcntl2
 from stochproc.quantile.some_distributions import *
 from stochproc.quantile.perf_measurer import PrcntlEstPerfMeasurer
 import numpy as np
@@ -11,11 +11,11 @@ import os
 ## Set these parameters manually before running the code.
 data_save_dir = "C:\\Users\\Administrator\\Documents\\github\\stochproc\\tests\\est_percentile\\compare_r_estimators\\sim_data\\"
 plots_save_dir = "C:\\Users\\Administrator\\Documents\\github\\stochproc\\tests\\est_percentile\\compare_r_estimators\\plots\\"
-rvs_fn = rvs_fn2
-ppf_fn = ppf_fn2
-distr_name = "LogNormal"
+rvs_fn = rvs_fn5
+ppf_fn = ppf_fn5
+distr_name = "Weibull_Min"
 # The percentiles to compare performance for.
-qs = np.arange(0.01, 1.0, 0.03)
+qs = np.arange(0.01, .94, 0.03)
 
 
 # Enumerate the estimators.
@@ -71,7 +71,7 @@ def main1():
                    name + "\\u_mses.csv", prf1.u_mses, delimiter=",")
 
         print("###############")
-        print("Processed " + name)
+        print("Finished processing " + name)
         print("###############")
 
     make_lines(ax1, ax2, ax3, ax4)

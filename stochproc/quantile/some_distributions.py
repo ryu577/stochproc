@@ -19,7 +19,7 @@ def rvs_fn4(n):
 
 
 def rvs_fn5(n):
-    return weibull_min.rvs(c=.5, size=n)
+    return weibull_min.rvs(c=5, size=n)
 
 
 def ppf_fn1(q):
@@ -39,4 +39,4 @@ def ppf_fn4(q):
 
 
 def ppf_fn5(q):
-    return weibull_min.ppf(q, c=.5)
+    return weibull_min.ppf(q, c=5)
