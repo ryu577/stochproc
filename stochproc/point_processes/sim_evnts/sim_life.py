@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
 
 def est_mean(s, e, lmb=1, mu=1):
@@ -50,5 +51,20 @@ def cmp_ests(s=100, e=120, lmb=1, mu=1):
 	print(np.var(ests3))
 	plt.hist(ests1)
 	#plt.avhline(1)
-	plt.show()
+	# plt.show()
 
+if __name__=='__main__':
+    # parse arguments 
+    parser = argparse.ArgumentParser(description='Run simulations on incident \
+        TTRs (time to resolution)')
+    parser.add_argument('s', type=int, help='start time of window')
+    parser.add_argument('e', type=int, help='end time of window')
+    parser.add_argument('lmb', type=int, help='scale of exponential \
+        distribution for sampling time between incident arrivals')
+    parser.add_argument('mu', type=int, help='scale of exponential distribution\
+        for sampling duration time of incidents')
+    args = parser.parse_args()
+    s, e, lmb, mu = args.s, args.e, args.lmb, args.mu
+
+    # run simulations and compare TTR estimates 
+    cmp_ests(s=s, e=e, lmb=lmb, mu=mu)
