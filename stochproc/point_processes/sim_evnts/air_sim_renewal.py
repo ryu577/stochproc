@@ -35,7 +35,7 @@ def sim_poisson_v2():
     catches = 0
     catches2 = 0
     total_t = 0
-    for _ in range(100000):
+    for _ in range(10000):
         j = np.random.uniform()*1000
         t_i = 0
         tt = 0
@@ -48,7 +48,7 @@ def sim_poisson_v2():
                 catches1 += 1
             total_t += max((tt-j), 0)
             catches2 += max(0, catches1)
-    print(catches/100000/30)
+    print(catches/10000/30)
     print(catches2/total_t)
 
 
