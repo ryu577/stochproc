@@ -3,6 +3,18 @@ from scipy.stats import weibull_min
 from scipy.stats import lomax
 
 
+def sim_poisson_simplified(vms=1000, s=500, e=530, lmb=15):
+    catches = 0
+    durtn = (e-s)
+    for _ in range(vms):
+        t_i = 0
+        while t_i < e+500:
+            t_i += np.random.exponential(lmb)
+            if s < t_i and t_i < e:
+                catches += 1
+    return catches/(vms*durtn)
+
+
 def sim_bimodal():
     catches = 0
     for _ in range(50000):

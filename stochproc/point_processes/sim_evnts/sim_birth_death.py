@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import stochproc.point_processes.sim_evnts.air_sim_renewal as asr
 
 
 def sim_brth_dth(s=50, e=65, lmb=1, mu=6, vms=5):
 	n = 0; m = 0
 	est1 = 0; est2 = 0; est3 = 0; est5 = 0
-	for i in range(vms):
+	for _ in range(vms):
 		t = 0
 		av = True
 		while t < e+100:
@@ -14,6 +15,7 @@ def sim_brth_dth(s=50, e=65, lmb=1, mu=6, vms=5):
 				durtn = np.random.exponential(lmb)
 			else:
 				durtn = np.random.exponential(mu)
+				#durtn = 0
 			t += durtn
 			e1 = t
 			if av:
@@ -29,31 +31,45 @@ def sim_brth_dth(s=50, e=65, lmb=1, mu=6, vms=5):
 					est3 = est3 + e - s1
 					est5 = est5 + e - s1
 			av = not av
-	res1 = est1/n
-	res2 = est2/n
-	res3 = est3/n
-	res5 = est5/(n+m)
+	res1 = n/est1
+	res2 = n/est2
+	res3 = n/est3
+	res5 = (n+m)/est5
 	return res1, res2, res3, res5
 
 
-def cmp_ests(s=100, e=120, lmb=1, mu=1):
+def cmp_ests(s=100, e=120, lmb=1, mu=1, vms=20):
 	ests1 = []; ests2 = []; ests3 = []; ests5 = []
 	for i in range(2000):
 		try:
 			est1, est2, est3, est5 =\
-				sim_brth_dth(s, e, lmb, mu, vms=5)
+				sim_brth_dth(s, e, lmb, mu, vms=vms)
 			ests1.append(est1)
 			ests2.append(est2)
 			ests3.append(est3)
 			ests5.append(est5)
 		except:
 			pass
+	#plt.hist(ests1)
+	#plt.show()
 	return populate_res(lmb,
 		                np.array(ests1),
 		                np.array(ests2),
 					    np.array(ests3),
 					    np.array(ests5)
 					   )
+
+
+def cmp_ests2(s=100, e=120, lmb=15, vms=10):
+	ests = []
+	for _ in range(20000):
+		try:
+			est = asr.sim_poisson_simplified(vms=vms, s=s, e=e, lmb=lmb)
+			ests.append(est)
+		except:
+			pass
+	print(np.mean(ests))
+	print(np.var(ests))
 
 
 def populate_res(mu, ests1, ests2, ests3, ests5):
@@ -68,7 +84,7 @@ def populate_res(mu, ests1, ests2, ests3, ests5):
 	print("######")
 	print(np.mean(ests5))
 	print(np.var(ests5))
-	plt.hist(ests1)
+	#plt.hist(ests1)
 	res = np.zeros((4,3))
 	populate_arr(0, ests1, mu, res)
 	populate_arr(1, ests2, mu, res)
