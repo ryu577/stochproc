@@ -7,7 +7,6 @@ def est_mean(s, e, lmb=1, mu=1):
 	t = 0
 	est1 = 0
 	est2 = 0
-	est3 = 0
 	est5 = 0
 	n = 0
 	m = 0
@@ -21,55 +20,46 @@ def est_mean(s, e, lmb=1, mu=1):
 			n = n + 1
 			est1 = est1 + durtn
 			est2 = est2 + e1 - max(s, s1)
-			est3 = est3 + durtn
 			est5 = est5 + durtn
 		elif e1 > e and s1 < e:
 			m = m + 1
 			est2 = est2 + e - max(s, s1)
-			est3 = est3 + e - s1
 			est5 = est5 + e - s1
 	res1 = est1/n
 	res2 = est2/n
-	res3 = est3/n
 	res5 = est5/(n+m)
-	return res1, res2, res3, res5
+	return res1, res2, res5
 
 
 # Tests..
 # est3 >= est1.
 def cmp_ests(s=100, e=120, lmb=1, mu=1):
-	ests1 = []; ests2 = []; ests3 = []; ests5 = []
-	for i in range(2000):
+	ests1 = []; ests2 = []; ests5 = []
+	for _ in range(2000):
 		try:
-			est1, est2, est3, est5 = est_mean(s, e, lmb, mu)
+			est1, est2, est5 = est_mean(s, e, lmb, mu)
 			ests1.append(est1)
 			ests2.append(est2)
-			ests3.append(est3)
 			ests5.append(est5)
 		except:
 			pass
-	return populate_res(mu, np.array(ests1), np.array(ests2), 
-					    np.array(ests3), np.array(ests5))
+	return populate_res(mu, np.array(ests1), np.array(ests2), np.array(ests5))
 
 
-def populate_res(mu, ests1, ests2, ests3, ests5):
+def populate_res(mu, ests1, ests2, ests5):
 	print(np.mean(ests1))
 	print(np.var(ests1))
 	print("######")
 	print(np.mean(ests2))
 	print(np.var(ests2))
 	print("######")
-	print(np.mean(ests3))
-	print(np.var(ests3))
-	print("######")
 	print(np.mean(ests5))
 	print(np.var(ests5))
 	plt.hist(ests1)
-	res = np.zeros((4,3))
+	res = np.zeros((3,3))
 	populate_arr(0, ests1, mu, res)
 	populate_arr(1, ests2, mu, res)
-	populate_arr(2, ests3, mu, res)
-	populate_arr(3, ests5, mu, res)
+	populate_arr(2, ests5, mu, res)
 	return res
 
 

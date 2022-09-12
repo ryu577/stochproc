@@ -135,7 +135,8 @@ def est_mean(s, e, lmb=1, mu=1):
 def cmp_ests(s=100, e=120, lmb=1, mu=1):
     # initialize stores for computed estimators 
     ests0 = []; ests1 = []; ests2 = []; ests3 = []; ests4 = []; ests5 = []
-    for _ in range(2000):
+    n_sims = 2000 # number of simulations to run
+    for _ in range(n_sims):
         try: 
             est0, est1, est2, est3, est4, est5 = est_mean(s, e,\
                 lmb, mu)
@@ -158,10 +159,13 @@ def cmp_ests(s=100, e=120, lmb=1, mu=1):
             print(f'Estimator {i}')
         mean = np.mean(ests[i])
         variance = np.var(ests[i])
+        mse = np.sum((np.array(ests[i]) - mu) ** 2) / n_sims
         dist_info.append(mean)
         dist_info.append(variance)
+        dist_info.append(mse)
         print(f'E(TTR): {mean}')
         print(f'Var(TTR): {variance}')
+        print(f'MSE: {mse}')
         print('######')
     return dist_info
 
