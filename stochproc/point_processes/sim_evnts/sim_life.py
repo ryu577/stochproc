@@ -2,8 +2,42 @@ import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
-
 def est_mean(s, e, lmb=1, mu=1):
+	'''
+    Performs a simulation of incidents arriving from time t=0 to time 
+    e + 100. Computes estimators for TTR (time to resolution)
+
+    Parameters: 
+    s (int) - start time of time window 
+    e (int) - end time of time window 
+    lmb (int) - scale of exponential distribution for sampling time 
+    between incident arrivals
+    mu (int) - scale of exponential distribution for sampling duration
+    time of incidents 
+    
+    Returns: 
+    tuple of estimators - tuple[int]
+    (est1, est2, est5)
+
+    est1 (float) - second E(TTR) estimator 
+    est1 = sum(e_i - s_i) / n1 where s < e_i < e and n1 = number of incidents
+    where the constraint is met 
+
+    est2 (float) - third E(TTR) estimator 
+    est2 = sum(d_i) / n2 where n2 = number of incidents where s_i < e < e
+    d_i = {
+        e_i - max(s, s_i), when s < e_i < e
+        e - max(s, s_i), when s_i < e < e_i 
+    }
+
+    est5 (float) - sixth E(TTR) estimator 
+    est5 = (est5_1 + est5_2) / (n5_1 + n5_2)
+    est5_1 = sum(e_i - s_i) where s < e_i < e and n5_1 = number of 
+    incidents where the constraint is met 
+    est5_2 = sum(e - s_i) where s_i < e < e_i and n5_2 = number of incidents
+    where the constriant is met 
+
+    '''
 	t = 0
 	est1 = 0
 	est2 = 0

@@ -6,8 +6,7 @@ import numpy as np
 def est_mean(s, e, lmb=1, mu=1):
     '''
     Performs a simulation of incidents arriving from time t=0 to time 
-    e + 100. Computes baseline E(TTR) (TTR = time to resolution), 
-    estimator as well as other estimators for E(TTR) 
+    e + 100. Computes estimators for TTR (time to resolution)
 
     Parameters: 
     s (int) - start time of time window 
@@ -44,17 +43,17 @@ def est_mean(s, e, lmb=1, mu=1):
     }
 
     est4 (float) - fifth E(TTR) estimator 
-    est4 = est4_1 + est4_2 
-    est4_1 = sum(e_i - max(s, s_i)) / n4_1 where s < e_i < e and n4_1 = number
+    est4 = (est4_1 + est4_2) / (n4_1 + n4_2)
+    est4_1 = sum(e_i - max(s, s_i)) where s < e_i < e and n4_1 = number
     of incidents where the constraint is met 
-    est4_2 = sum(e - max(s, s_i)) / n4_2 where s_i < e < e_i and n4_2 = number
+    est4_2 = sum(e - max(s, s_i)) where s_i < e < e_i and n4_2 = number
     of incidents where the constraint is met 
 
     est5 (float) - sixth E(TTR) estimator 
-    est5 = est5_1 + est5_2 
-    est5_1 = sum(e_i - s_i) / n5_1 where s < e_i < e and n5_1 = number of 
+    est5 = (est5_1 + est5_2) / (n5_1 + n5_2)
+    est5_1 = sum(e_i - s_i) where s < e_i < e and n5_1 = number of 
     incidents where the constraint is met 
-    est5_2 = sum(e - s_i) / n5_2 s_i < e < e_i and n5_2 = number of incidents
+    est5_2 = sum(e - s_i) where s_i < e < e_i and n5_2 = number of incidents
     where the constriant is met 
 
     '''
