@@ -10,7 +10,7 @@ The best way to demonstrate the capabilities of this library is to describe some
 it can model and show how to use it to extract some of their properties.
 
 # Installation
-To install the library, run (pyray was taken on pypi):
+To install the library, run:
 
 ```
 pip install stochproc
