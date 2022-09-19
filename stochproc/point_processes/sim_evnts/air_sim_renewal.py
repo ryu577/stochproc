@@ -4,15 +4,21 @@ from scipy.stats import lomax
 
 
 def sim_poisson_simplified(vms=1000, s=500, e=530, lmb=15):
-    catches = 0
+    n = 0
     durtn = (e-s)
-    for _ in range(vms):
+    durtn_1 = 1e-34
+    for i in range(vms):
         t_i = 0
         while t_i < e+500:
-            t_i += np.random.exponential(lmb)
+            cur_durtn = np.random.exponential(lmb)
+            t_i += cur_durtn
             if s < t_i and t_i < e:
-                catches += 1
-    return catches/(vms*durtn)
+                n += 1
+                durtn_1 += cur_durtn
+    if n > 0:
+        return n/(vms*durtn), durtn_1/n
+    else:
+        return n/(vms*durtn), None
 
 
 def sim_bimodal():
