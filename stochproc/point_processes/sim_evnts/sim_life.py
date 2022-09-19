@@ -67,14 +67,27 @@ def est_mean(s, e, lmb=1, mu=1):
 
 # Tests..
 # est3 >= est1.
-def cmp_ests(s=100, e=120, lmb=1, mu=1):
+def cmp_ests(s=100, e=120, lmb=1, mu=1, ttx=True):
 	ests1 = []; ests2 = []; ests5 = []
+	num_invalid_trials = 0
 	for _ in range(2000):
 		try:
 			est1, est2, est5 = est_mean(s, e, lmb, mu)
+			if not ttx: 
+				if est1 != 0: 
+					est1 = 1 / est1
+				if est2 != 0: 
+					est2 = 1 / est2
+				if est5 != 0: 
+					est5 = 1 / est5
 			ests1.append(est1)
 			ests2.append(est2)
 			ests5.append(est5)
+		except ZeroDivisionError: 
+			num_invalid_trials += 1
+			if num_invalid_trials % 100 == 0: 
+				print('An estimator had no events taken into account, trial is '
+					+ f'invalid. Number of invalid trials: {num_invalid_trials}')
 		except:
 			pass
 	return populate_res(mu, np.array(ests1), np.array(ests2), np.array(ests5))
@@ -105,16 +118,14 @@ def populate_arr(ix, ests1, mu, res):
 
 if __name__=='__main__':
     # parse arguments 
-    parser = argparse.ArgumentParser(description='Run simulations on incident \
-        TTRs (time to resolution)')
+    parser = argparse.ArgumentParser(description='Run simulations on TTX/event rate estimators')
     parser.add_argument('s', type=int, help='start time of window')
     parser.add_argument('e', type=int, help='end time of window')
-    parser.add_argument('lmb', type=int, help='scale of exponential \
-        distribution for sampling time between incident arrivals')
-    parser.add_argument('mu', type=int, help='scale of exponential distribution\
-        for sampling duration time of incidents')
+    parser.add_argument('lmb', type=int, help='scale of exponential distribution for sampling time between events')
+    parser.add_argument('mu', type=int, help='scale of exponential distribution for sampling duration time of events')
+    parser.add_argument('ttx', type=bool, help='True if estimating TTX, False if estimating rate')
     args = parser.parse_args()
-    s, e, lmb, mu = args.s, args.e, args.lmb, args.mu
+    s, e, lmb, mu, ttx = args.s, args.e, args.lmb, args.mu, args.ttx
 
     # run simulations and compare TTR estimates 
-    cmp_ests(s=s, e=e, lmb=lmb, mu=mu)
+    cmp_ests(s=s, e=e, lmb=lmb, mu=mu, ttx=ttx)
