@@ -61,7 +61,7 @@ def est_mean(s, e, lmb=1, mu=1):
 			est5 = est5 + e - s1
 	res1 = n/est1
 	res2 = n/est2
-	res5 = est5/(n+m)
+	res5 = (n+m)/est5
 	return res1, res2, res5
 
 
@@ -69,7 +69,7 @@ def est_mean(s, e, lmb=1, mu=1):
 # est3 >= est1.
 def cmp_ests(s=100, e=120, lmb=1, mu=1):
 	ests1 = []; ests2 = []; ests5 = []
-	for _ in range(10000):
+	for _ in range(1000):
 		try:
 			est1, est2, est5 = est_mean(s, e, lmb, mu)
 			ests1.append(est1)

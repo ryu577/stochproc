@@ -58,5 +58,3 @@ def verify_variance():
     print("Measured variance:" + str(measured_var))
     print("Theoretical variance:" + str(theoretic_var))
 
-
-

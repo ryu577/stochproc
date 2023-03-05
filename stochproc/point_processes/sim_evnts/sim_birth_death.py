@@ -30,16 +30,16 @@ def sim_brth_dth(s=50, e=65, lmb=1, mu=6, vms=5):
 					est3 = est3 + e - s1
 					est5 = est5 + e - s1
 			av = not av
-	res1 = n/est1
-	res2 = n/est2
-	res3 = n/est3
-	res5 = (n+m)/est5
+	res1 = est1/n
+	res2 = est2/n
+	res3 = est3/n
+	res5 = est5/(n+m)
 	return res1, res2, res3, res5
 
 
 def cmp_ests(s=100, e=120, lmb=1, mu=1, vms=20):
 	ests1 = []; ests2 = []; ests3 = []; ests5 = []
-	for i in range(1000):
+	for i in range(10000):
 		try:
 			est1, est2, est3, est5 =\
 				sim_brth_dth(s, e, lmb, mu, vms=vms)
@@ -49,9 +49,9 @@ def cmp_ests(s=100, e=120, lmb=1, mu=1, vms=20):
 			ests5.append(est5)
 		except:
 			pass
-	plt.hist(ests2)
-	plt.axvline(1/lmb, color="black")
-	plt.show()
+	plt.hist(ests1)
+	plt.axvline(lmb, color="black")
+	#plt.show()
 	return populate_res(lmb,
 		                np.array(ests1),
 		                np.array(ests2),
