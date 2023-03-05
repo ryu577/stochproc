@@ -39,9 +39,9 @@ def est_mean(s, e, lmb=1, mu=1):
 
     '''
 	t = 0
-	est1 = 0
-	est2 = 0
-	est5 = 0
+	est1 = 1e-34
+	est2 = 1e-34
+	est5 = 1e-34
 	n = 0
 	m = 0
 	while t < e+100:
@@ -59,9 +59,9 @@ def est_mean(s, e, lmb=1, mu=1):
 			m = m + 1
 			est2 = est2 + e - max(s, s1)
 			est5 = est5 + e - s1
-	res1 = est1/n
-	res2 = est2/n
-	res5 = est5/(n+m)
+	res1 = n/est1
+	res2 = n/est2
+	res5 = (n+m)/est5
 	return res1, res2, res5
 
 
@@ -69,7 +69,7 @@ def est_mean(s, e, lmb=1, mu=1):
 # est3 >= est1.
 def cmp_ests(s=100, e=120, lmb=1, mu=1):
 	ests1 = []; ests2 = []; ests5 = []
-	for _ in range(2000):
+	for _ in range(1000):
 		try:
 			est1, est2, est5 = est_mean(s, e, lmb, mu)
 			ests1.append(est1)
